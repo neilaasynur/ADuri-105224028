@@ -1,6 +1,6 @@
 ### Bukti Pengujian Lighthouse Accessibility
 
-[Laporan Pengujian Lighhouse](./Pengujian%20Skor%20Lighthouse.png)
+![Laporan Pengujian Lighhouse](./Pengujian%20Skor%20Lighthouse.png)
 
 Kondisi Pengujian:
 1. Halaman yang Diuji      : Beranda (http://localhost:3000/)
