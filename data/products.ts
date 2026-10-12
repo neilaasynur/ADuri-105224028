@@ -135,12 +135,6 @@ export const PAYMENT_OPTIONS: PaymentOption[] = [
     title: "Transfer Bank Direct (BCA / Mandiri)",
     description: "Transfer manual ke rekening kebun keluarga kami.",
     accountInfo: "BCA: 893-0192-881 a.n. Kebun Durian Riau"
-  },
-  {
-    id: "cod",
-    title: "Bayar di Tempat (COD)",
-    description: "Bayar tunai ke kurir saat durian sampai di tempat Anda.",
-    badge: "Khusus Pekanbaru & Kampar"
   }
 ];
 

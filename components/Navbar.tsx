@@ -20,12 +20,6 @@ export default function Navbar({ currentPath = "/" }: NavbarProps) {
         {/* Top Bar: Logo & Mobile Menu Toggle */}
         <section className="flex items-center justify-between gap-3">
           <section className="flex items-center gap-2 sm:gap-3">
-            <mark
-              aria-hidden="true"
-              className="inline-block text-[10px] sm:text-xs font-bold px-2 py-0.5 sm:py-1 rounded-full bg-[#fff3b8] text-[#624d00] shrink-0"
-            >
-              FLEXBOX — header/nav
-            </mark>
             <Link
               href="/"
               className="text-xl sm:text-2xl font-bold tracking-wide flex items-center gap-2 hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 rounded px-1 min-h-[44px]"
@@ -83,13 +77,6 @@ export default function Navbar({ currentPath = "/" }: NavbarProps) {
             isOpen ? "flex" : "hidden"
           } md:flex flex-col md:flex-row items-stretch md:items-center gap-3 pt-3 md:pt-0 border-t md:border-t-0 border-emerald-800/80 transition-all duration-300`}
         >
-          <mark
-            aria-hidden="true"
-            className="hidden md:inline-block text-xs font-bold px-2.5 py-1 rounded-full bg-[#fff3b8] text-[#624d00] shrink-0"
-          >
-            FLEXBOX — menu
-          </mark>
-
           <ul className="flex flex-col md:flex-row items-stretch md:items-center gap-1.5 md:gap-4 m-0 p-0 list-none">
             <li>
               <Link

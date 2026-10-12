@@ -17,7 +17,7 @@ export interface Product {
   isBestSeller?: boolean;
 }
 
-export type PaymentMethodType = "qris" | "transfer" | "cod";
+export type PaymentMethodType = "qris" | "transfer";
 
 export interface PaymentOption {
   id: PaymentMethodType;

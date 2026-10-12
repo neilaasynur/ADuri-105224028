@@ -28,12 +28,6 @@ export default function Home() {
           className="flex flex-col lg:flex-row items-center justify-between gap-6 sm:gap-8 bg-[#e9f1d5] rounded-2xl p-6 sm:p-8 lg:p-10 shadow-sm border border-[#d3e2b1]"
         >
           <article className="flex-1 space-y-3 text-left w-full">
-            <mark
-              aria-hidden="true"
-              className="inline-block text-xs font-bold px-2.5 py-1 rounded-full bg-[#fff3b8] text-[#624d00]"
-            >
-              FLEXBOX — hero
-            </mark>
             <h1 id="hero-heading" className="text-2xl sm:text-4xl lg:text-5xl font-extrabold text-[#26321f] leading-tight">
               Durian Asli Riau, Langsung dari Kebun Keluarga
             </h1>
@@ -76,12 +70,6 @@ export default function Home() {
         <section id="produk" aria-labelledby="produk-heading" className="mt-10 sm:mt-14">
           <header className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6">
             <hgroup>
-              <mark
-                aria-hidden="true"
-                className="inline-block text-xs font-bold px-2.5 py-1 rounded-full bg-[#fff3b8] text-[#624d00] mb-2"
-              >
-                GRID — kumpulan kartu produk
-              </mark>
               <h2 id="produk-heading" className="text-xl sm:text-3xl font-bold text-[#26321f]">
                 Durian Pilihan Favorit
               </h2>
@@ -114,12 +102,6 @@ export default function Home() {
             aria-labelledby="tentang-heading"
             className="lg:col-span-2 bg-white rounded-2xl p-5 sm:p-8 border border-[#dedbcf] shadow-sm space-y-3 sm:space-y-4"
           >
-            <mark
-              aria-hidden="true"
-              className="inline-block text-xs font-bold px-2.5 py-1 rounded-full bg-[#fff3b8] text-[#624d00]"
-            >
-              GRID — 2 kolom konten
-            </mark>
             <h2 id="tentang-heading" className="text-xl sm:text-2xl font-bold text-[#26321f]">
               Tentang Kebun Keluarga Kami
             </h2>
@@ -136,12 +118,6 @@ export default function Home() {
             aria-labelledby="pengiriman-heading"
             className="lg:col-span-1 bg-white rounded-2xl p-5 sm:p-8 border border-[#dedbcf] shadow-sm space-y-3"
           >
-            <mark
-              aria-hidden="true"
-              className="inline-block text-xs font-bold px-2.5 py-1 rounded-full bg-[#fff3b8] text-[#624d00]"
-            >
-              ASIDE — informasi tambahan
-            </mark>
             <h2 id="pengiriman-heading" className="text-lg sm:text-xl font-bold text-[#26321f]">
               Area Pengiriman Utama
             </h2>

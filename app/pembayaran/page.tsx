@@ -114,11 +114,6 @@ function PaymentFormContent({ searchParams }: PaymentPageProps) {
             Silakan transfer senilai <strong>{totalPriceFormatted}</strong> ke rekening BCA <strong>893-0192-881</strong> a.n. <strong>Kebun Durian Riau</strong>.
           </p>
         )}
-        {paymentMethod === "cod" && (
-          <p>
-            Pesanan Anda akan langsung diproses untuk dikirim ke <strong>{address}, {district}</strong>. Harap siapkan uang pas <strong>{totalPriceFormatted}</strong> saat kurir tiba.
-          </p>
-        )}
         <p className="font-semibold text-emerald-800 pt-2 m-0">
           Tim Kebun Durian Riau akan mengonfirmasi via WhatsApp ke {phone}.
         </p>
