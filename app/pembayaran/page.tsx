@@ -111,7 +111,7 @@ function PaymentFormContent({ searchParams }: PaymentPageProps) {
         )}
         {paymentMethod === "transfer" && (
           <p>
-            Silakan transfer senilai <strong>{totalPriceFormatted}</strong> ke rekening BCA <strong>893-0192-881</strong> a.n. <strong>Kebun Durian Riau</strong>.
+            Silakan transfer senilai <strong>{totalPriceFormatted}</strong> ke rekening XXX <strong>xxx-xxxx-xxx</strong> a.n. <strong>xxxxxxxx</strong>.
           </p>
         )}
         <p className="font-semibold text-emerald-800 pt-2 m-0">

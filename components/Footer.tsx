@@ -5,13 +5,19 @@ export default function Footer() {
     <footer id="kontak" className="mt-12 sm:mt-16 bg-[#26321f] text-white py-8 px-4 sm:px-6">
       <section className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-t border-emerald-900/50 pt-4">
         <address className="not-italic space-y-1">
-          <strong className="text-base sm:text-lg block text-white">Durian Riau</strong>
+          <strong className="text-base sm:text-lg block text-white">ADuri</strong>
           <span className="text-xs sm:text-sm text-neutral-300 block leading-relaxed">
-            Usaha Keluarga • Kebun Kampar & Pekanbaru, Riau
+            Kebun Durian Keluarga Asynur • Kampar & Pekanbaru, Riau
           </span>
         </address>
         
         <section className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 w-full md:w-auto">
+          <Link
+            href="/ambil-sendiri"
+            className="inline-flex items-center justify-center text-sm text-amber-300 hover:underline focus:outline-none focus:ring-1 focus:ring-amber-300 min-h-[44px] sm:min-h-0"
+          >
+            Kunjungan & Ambil Sendiri &rarr;
+          </Link>
           <Link
             href="/produk"
             className="inline-flex items-center justify-center text-sm text-amber-200 hover:underline focus:outline-none focus:ring-1 focus:ring-amber-300 min-h-[44px] sm:min-h-0"

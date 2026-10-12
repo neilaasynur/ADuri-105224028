@@ -126,15 +126,15 @@ export const DURIAN_PRODUCTS: Product[] = [
 export const PAYMENT_OPTIONS: PaymentOption[] = [
   {
     id: "qris",
-    title: "QRIS (BCA, Mandiri, GoPay, OVO, ShopeePay)",
+    title: "QRIS",
     description: "Scan kode QR gratis biaya admin dan instan terkonfirmasi.",
     badge: "Paling Cepat & Praktis"
   },
   {
     id: "transfer",
-    title: "Transfer Bank Direct (BCA / Mandiri)",
+    title: "Transfer Bank Direct",
     description: "Transfer manual ke rekening kebun keluarga kami.",
-    accountInfo: "BCA: 893-0192-881 a.n. Kebun Durian Riau"
+    accountInfo: "XXX: xxx-xxxx-xxx a.n. xxxxxxxx"
   }
 ];
 

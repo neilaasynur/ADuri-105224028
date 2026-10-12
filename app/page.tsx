@@ -38,13 +38,19 @@ export default function Home() {
             <p className="pt-2 flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
               <Link
                 href="/produk"
-                className="flex items-center justify-center px-6 py-3 bg-[#31572c] hover:bg-[#254322] active:bg-[#1a3018] text-white font-bold rounded-xl transition-colors shadow-md focus:outline-none focus-visible:ring-4 focus-visible:ring-emerald-700/50 min-h-[44px]"
+                className="flex items-center justify-center px-5 py-3 bg-[#31572c] hover:bg-[#254322] active:bg-[#1a3018] text-white font-bold rounded-xl transition-colors shadow-md focus:outline-none focus-visible:ring-4 focus-visible:ring-emerald-700/50 min-h-[44px]"
               >
                 Lihat Katalog Durian
               </Link>
               <Link
+                href="/ambil-sendiri"
+                className="flex items-center justify-center px-5 py-3 bg-amber-400 hover:bg-amber-300 text-[#26321f] font-bold rounded-xl transition-colors shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700 min-h-[44px]"
+              >
+                Ambil Sendiri di Kebun
+              </Link>
+              <Link
                 href="/pembayaran"
-                className="flex items-center justify-center px-6 py-3 bg-white hover:bg-neutral-100 text-[#31572c] border border-[#31572c] font-bold rounded-xl transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700 min-h-[44px]"
+                className="flex items-center justify-center px-5 py-3 bg-white hover:bg-neutral-100 text-[#31572c] border border-[#31572c] font-bold rounded-xl transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700 min-h-[44px]"
               >
                 Pesan Langsung
               </Link>
