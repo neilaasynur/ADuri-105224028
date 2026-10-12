@@ -1,83 +1,134 @@
-# ADuri
-## Deskripsi Produk
+# ADuri 
 
-**ADuri** adalah platform e-commerce berbasis web yang memfasilitasi penjualan buah durian hasil kebun keluarga. Layanan pengiriman saat ini difokuskan di wilayah **Riau** untuk menjaga kesegaran dan kualitas buah dari kebun langsung ke tangan pembeli.
+> **Fresh from our garden, straight to you.**  
+> Platform e-commerce penjualan durian hasil kebun keluarga Asynur untuk wilayah Riau.
 
-Pengguna yang belum login dapat menjelajahi katalog produk yang tersedia.Namun untuk melakukan transaksi pembelian, pengguna diwajibkan untuk mendaftar atau masuk ke dalam akun. Pembayaran tersedia melalui **transfer bank (TF)**
-dan **kode QR**.
+---
 
-Aplikasi ini mengimplementasikan komponen kriptografi untuk menjaga kerahasiaan dan integritas data pengguna serta data transaksi.
+## 📌 Bagian 1: Konsep & Dokumentasi Produk (Milestone 1)
 
-## Kebutuhan Kriptografi
+### 1. Deskripsi Produk
+**ADuri** adalah aplikasi web e-commerce yang memfasilitasi penjualan buah durian segar langsung dari kebun keluarga Asynur di wilayah Riau. Aplikasi ini menghubungkan pemilik kebun keluarga langsung dengan konsumen tanpa perantara tengkulak.
+
+### 2. Permasalahan yang Ingin Diselesaikan
+1. **Keterbatasan Jangkauan Pasar Kebun Keluarga**: Penjualan hasil panen kebun durian keluarga Asynur sebelumnya masih mengandalkan relasi sekitar dan pemasaran mulut-ke-mulut konvensional. Dibutuhkan saluran digital terpusat untuk memperluas jangkauan pasar ke seluruh penjuru Riau agar kapasitas panen terserap optimal.
+2. **Ketidakpastian Kualitas Durian**: Pembeli di pasaran sering kesulitan mendapatkan durian yang terjamin manis legit dan tidak hambar.
+3. **Keterbatasan Akses Kebun Langsung**: Sulitnya pembeli kota mendapatkan buah segar yang baru dipetik di hari yang sama.
+4. **Risiko Manipulasi Pesanan & Keamanan Data**: Pembelian melalui pesan chat konvensional rentan salah hitung nota, manipulasi jumlah transfer, dan kebocoran kontak pribadi.
+5. **Pencatatan Transaksi Manual & Keamanan Data**: Pemesanan konvensional lewat pesan instan rentan kesalahan pencatatan pesanan, salah hitung nota, risiko manipulasi bukti pembayaran, serta kebocoran data pribadi pelanggan.
+
+### 3. Sasaran Pengguna
+- Pecinta buah durian di area Provinsi Riau.
+- Keluarga dan perorangan yang ingin membeli oleh-oleh khas durian segar berkualitas tinggi.
+- Penikmat durian premium dengan garansi buah manis.
+
+### 4. Fitur Awal Produk
+- **Katalog & Spesifikasi Produk**: Menampilkan daftar varietas durian lengkap dengan foto, harga, satuan, tingkat kemanisan, kepahitan, dan ketebalan daging buah.
+- **Navigasi & Pencarian Rinci**: Halaman beranda, katalog semua varietas, dan detail produk dinamis berdasarkan slug.
+- **Formulir Pemesanan & Validasi Sisi Klien**: Form pemesanan responsif dengan validasi otomatis (nama minimal 3 karakter, nomor WhatsApp format 08... minimal 10 digit, dan alamat lengkap minimal 10 karakter) serta pesan kesalahan visual.
+- **Pilihan Pembayaran Beragam**: Simulasi instruksi pembayaran melalui Transfer Bank (TF) dan QRIS.
+
+### 5. Teknologi yang Digunakan
+- **Framework**: [Next.js](https://nextjs.org/) (App Router, React 19)
+- **Bahasa**: [TypeScript](https://www.typescriptlang.org/)
+- **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
+- **Kriptografi**: Node.js `crypto` & `bcryptjs`
+- **Testing**: [Vitest](https://vitest.dev/)
+
+### 6. Struktur Folder Aplikasi
+```
+projek-web/
+├── app/
+│   ├── layout.tsx                # Root layout & font setting
+│   ├── page.tsx                  # Halaman Beranda (Hero, Featured, Info)
+│   ├── produk/
+│   │   ├── page.tsx              # Halaman Katalog Seluruh Produk
+│   │   └── [slug]/page.tsx       # Halaman Detail Spesifikasi Produk (Dinamis)
+│   └── pembayaran/
+│       └── page.tsx              # Halaman Formulir Pemesanan & Pembayaran
+├── components/
+│   ├── Navbar.tsx                # Reusable Component: Navigasi Header
+│   ├── Footer.tsx                # Reusable Component: Informasi Footer
+│   ├── ProductCard.tsx           # Reusable Component: Kartu Durian
+│   ├── ProductGallery.tsx        # Reusable Component: Galeri Foto Durian
+│   └── ProductSpecification.tsx  # Reusable Component: Bar Indikator Rasa/Daging
+├── data/
+│   └── products.ts               # Mock Data produk durian & metode bayar
+├── types/
+│   └── durian.ts                 # Definisi antarmuka TypeScript
+├── lib/
+│   └── crypto.ts                 # Modul komponen kriptografi produk
+└── __tests__/
+    └── crypto.test.ts            # Skenario uji otomatis (Vitest)
+```
+
+---
+
+## 🔐 Bagian 2: Kebutuhan Kriptografi Produk
 
 | No | Data yang Dilindungi | Tujuan Keamanan | Teknik Kriptografi | Prioritas |
-|----|----------------------|-----------------|-------------------|-----------|
+|:--:|----------------------|-----------------|-------------------|:---------:|
 | 1 | Password akun pengguna | **Confidentiality** — password tidak boleh terbaca meski database bocor | Hashing (bcrypt, salt otomatis, cost factor 12) | Tinggi |
 | 2 | Nomor rekening & nomor telepon pembeli | **Confidentiality** — data finansial dan kontak pribadi harus terlindungi | Enkripsi simetrik (AES-256-GCM) | Tinggi |
 | 3 | Alamat pengiriman pembeli | **Confidentiality** — informasi lokasi fisik pembeli wajib dilindungi | Enkripsi simetrik (AES-256-GCM) | Tinggi |
 | 4 | Integritas payload pesanan (item, harga, total) | **Integrity** — data pesanan tidak boleh dimanipulasi saat checkout | HMAC-SHA256 | Tinggi |
 
-## Rancangan Komponen Kriptografi
+---
+
+## 🛠️ Bagian 3: Rancangan Komponen Kriptografi
 
 ### 1. Hash Password (bcrypt)
-
-| Aspek | Detail |
-|-------|--------|
-| **Masukan** | String password plaintext dari form registrasi/login |
-| **Proses** | `bcrypt.hash(password, saltRounds=12)` — bcrypt membangkitkan salt acak 128-bit, lalu menjalankan algoritma Blowfish sebanyak 2¹² = 4.096 iterasi |
-| **Keluaran** | String hash 60 karakter (contoh: `$2b$12$abc...xyz`) |
-| **Sumber keacakan** | `crypto.randomBytes()` bawaan Node.js, dipanggil secara internal oleh bcrypt |
-| **Representasi data** | Base64-encoded string, disimpan di kolom `password_hash` tabel `users` |
+- **Masukan**: String password plaintext dari form registrasi/login
+- **Proses**: `bcrypt.hash(password, saltRounds=12)` membangkitkan salt acak 128-bit, lalu menjalankan Blowfish sebanyak 4.096 iterasi.
+- **Keluaran**: String hash 60 karakter (`$2b$12$...`)
+- **Sumber keacakan**: `crypto.randomBytes()` bawaan Node.js via bcrypt
+- **Representasi data**: Base64-encoded string
 
 ### 2. Enkripsi Data Pribadi (AES-256-GCM)
-
-| Aspek | Detail |
-|-------|--------|
-| **Masukan** | String plaintext (nomor rekening / nomor HP / alamat) + encryption key dari environment variable |
-| **Proses** | `crypto.randomBytes(12)` → IV acak 96-bit → `AES-256-GCM(key, iv, plaintext)` → menghasilkan ciphertext + authentication tag 128-bit |
-| **Keluaran** | String format `iv:authTag:ciphertext` (hex-encoded) |
-| **Sumber keacakan** | `crypto.randomBytes(12)` untuk IV — setiap pemanggilan menghasilkan IV yang berbeda |
-| **Representasi data** | Hexadecimal string, disimpan di kolom `phone_enc`, `address_enc`, `bank_account_enc` |
+- **Masukan**: String plaintext data pribadi + encryption key dari environment variable
+- **Proses**: Pembangkitan IV 96-bit secara acak → enkripsi AES-256-GCM → menghasilkan ciphertext & authentication tag 128-bit.
+- **Keluaran**: String hex terformat `iv:authTag:ciphertext`
+- **Sumber keacakan**: `crypto.randomBytes(12)`
+- **Representasi data**: Hexadecimal string
 
 ### 3. Verifikasi Integritas Pesanan (HMAC-SHA256)
+- **Masukan**: Objek payload JSON pesanan + secret key
+- **Proses**: Menghitung `createHmac('sha256', secret).update(JSON.stringify(payload)).digest('hex')`
+- **Keluaran**: String heksadesimal 64 karakter (tanda tangan digital)
+- **Sumber keacakan**: Fungsi deterministik
+- **Representasi data**: Hexadecimal string
 
-| Aspek | Detail |
-|-------|--------|
-| **Masukan** | JSON payload pesanan (daftar item, harga satuan, total, userId) + secret key |
-| **Proses** | `createHmac('sha256', secret).update(JSON.stringify(payload)).digest('hex')` |
-| **Keluaran** | Hex string 64 karakter (signature/tanda tangan digital) |
-| **Sumber keacakan** | Tidak memerlukan keacakan (fungsi deterministik) |
-| **Representasi data** | Hexadecimal string, disimpan di kolom `order_signature` tabel `orders` |
+---
 
-## Cara Menjalankan
+## 🚀 Petunjuk Menjalankan Proyek
 
 ### Prasyarat
-- Node.js 18 atau lebih baru
+- Node.js 18+
 - npm
 
-### Instalasi dependensi
-
+### 1. Instalasi Dependensi
 ```bash
 npm install
 ```
 
-### Menyiapkan environment variable
-
-Buat file `.env.local` di root proyek:
-
+### 2. Pengaturan Environment Variable
+Salin file template `.env.example` menjadi `.env.local`:
+```bash
+cp .env.example .env.local
 ```
-ENCRYPTION_KEY=isi-dengan-32-karakter-kunci-acak
-HMAC_SECRET=isi-dengan-secret-panjang-untuk-hmac
+Pastikan kunci rahasia sintetis/lokal telah terisi di `.env.local`:
+```env
+ENCRYPTION_KEY=kunci-test-32-karakter-sintetis!
+HMAC_SECRET=hmac-secret-sintetis-untuk-testing
 ```
 
-### Menjalankan aplikasi (development)
-
+### 3. Menjalankan Aplikasi Web (Development)
 ```bash
 npm run dev
 ```
+Akses aplikasi melalui peramban di: `http://localhost:3000`
 
-### Menjalankan uji otomatis
-
+### 4. Menjalankan Uji Otomatis
 ```bash
 npm test
 ```

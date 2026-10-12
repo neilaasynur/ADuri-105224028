@@ -26,6 +26,13 @@ function PaymentFormContent({ searchParams }: PaymentPageProps) {
   const [address, setAddress] = useState<string>("");
   const [notes, setNotes] = useState<string>("");
 
+  // Client-side validation error state
+  const [errors, setErrors] = useState<{
+    fullName?: string;
+    phone?: string;
+    address?: string;
+  }>({});
+
   // Order submission state
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
 
@@ -39,9 +46,40 @@ function PaymentFormContent({ searchParams }: PaymentPageProps) {
     maximumFractionDigits: 0
   }).format(totalPrice);
 
+  const validateForm = (): boolean => {
+    const newErrors: { fullName?: string; phone?: string; address?: string } = {};
+
+    // 1. Validasi Nama Lengkap (minimal 3 karakter)
+    if (!fullName.trim()) {
+      newErrors.fullName = "Nama lengkap wajib diisi.";
+    } else if (fullName.trim().length < 3) {
+      newErrors.fullName = "Nama lengkap minimal 3 karakter.";
+    }
+
+    // 2. Validasi Nomor Telepon / WhatsApp (format Indonesia 08... minimal 10 digit)
+    const phoneRegex = /^08[0-9]{8,12}$/;
+    if (!phone.trim()) {
+      newErrors.phone = "Nomor WhatsApp aktif wajib diisi.";
+    } else if (!phoneRegex.test(phone.trim())) {
+      newErrors.phone = "Nomor harus diawali '08' dan terdiri dari 10-14 digit angka.";
+    }
+
+    // 3. Validasi Alamat Lengkap (minimal 10 karakter agar jelas)
+    if (!address.trim()) {
+      newErrors.address = "Alamat lengkap pengiriman wajib diisi.";
+    } else if (address.trim().length < 10) {
+      newErrors.address = "Alamat terlalu singkat, mohon sertakan jalan, patokan, atau nomor rumah (min. 10 karakter).";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    setIsSuccess(true);
+    if (validateForm()) {
+      setIsSuccess(true);
+    }
   };
 
   return isSuccess ? (
@@ -150,27 +188,55 @@ function PaymentFormContent({ searchParams }: PaymentPageProps) {
 
           <section className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <label className="space-y-1 block">
-              <span className="text-xs sm:text-sm font-semibold text-neutral-700 block">Nama Lengkap:</span>
+              <span className="text-xs sm:text-sm font-semibold text-neutral-700 block">
+                Nama Lengkap <span className="text-red-500">*</span>:
+              </span>
               <input
                 type="text"
-                required
                 placeholder="Contoh: Budi Pratama"
                 value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                className="w-full p-3 sm:p-3.5 border border-[#dedbcf] rounded-xl bg-[#faf8f1] text-xs sm:text-base text-[#26321f] focus:outline-none focus:ring-2 focus:ring-[#31572c] min-h-[44px]"
+                onChange={(e) => {
+                  setFullName(e.target.value);
+                  if (errors.fullName) setErrors((prev) => ({ ...prev, fullName: undefined }));
+                }}
+                aria-invalid={!!errors.fullName}
+                className={`w-full p-3 sm:p-3.5 border rounded-xl bg-[#faf8f1] text-xs sm:text-base text-[#26321f] focus:outline-none focus:ring-2 min-h-[44px] transition-colors ${
+                  errors.fullName
+                    ? "border-red-500 focus:ring-red-500 bg-red-50/40"
+                    : "border-[#dedbcf] focus:ring-[#31572c]"
+                }`}
               />
+              {errors.fullName && (
+                <p role="alert" className="text-xs font-semibold text-red-600 mt-1 flex items-center gap-1">
+                  <span>⚠️</span> {errors.fullName}
+                </p>
+              )}
             </label>
 
             <label className="space-y-1 block">
-              <span className="text-xs sm:text-sm font-semibold text-neutral-700 block">Nomor WhatsApp Aktif:</span>
+              <span className="text-xs sm:text-sm font-semibold text-neutral-700 block">
+                Nomor WhatsApp Aktif <span className="text-red-500">*</span>:
+              </span>
               <input
                 type="tel"
-                required
                 placeholder="Contoh: 081234567890"
                 value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className="w-full p-3 sm:p-3.5 border border-[#dedbcf] rounded-xl bg-[#faf8f1] text-xs sm:text-base text-[#26321f] focus:outline-none focus:ring-2 focus:ring-[#31572c] min-h-[44px]"
+                onChange={(e) => {
+                  setPhone(e.target.value);
+                  if (errors.phone) setErrors((prev) => ({ ...prev, phone: undefined }));
+                }}
+                aria-invalid={!!errors.phone}
+                className={`w-full p-3 sm:p-3.5 border rounded-xl bg-[#faf8f1] text-xs sm:text-base text-[#26321f] focus:outline-none focus:ring-2 min-h-[44px] transition-colors ${
+                  errors.phone
+                    ? "border-red-500 focus:ring-red-500 bg-red-50/40"
+                    : "border-[#dedbcf] focus:ring-[#31572c]"
+                }`}
               />
+              {errors.phone && (
+                <p role="alert" className="text-xs font-semibold text-red-600 mt-1 flex items-center gap-1">
+                  <span>⚠️</span> {errors.phone}
+                </p>
+              )}
             </label>
           </section>
 
@@ -203,15 +269,29 @@ function PaymentFormContent({ searchParams }: PaymentPageProps) {
           </section>
 
           <label className="space-y-1 block">
-            <span className="text-xs sm:text-sm font-semibold text-neutral-700 block">Alamat Lengkap Pengiriman:</span>
+            <span className="text-xs sm:text-sm font-semibold text-neutral-700 block">
+              Alamat Lengkap Pengiriman <span className="text-red-500">*</span>:
+            </span>
             <textarea
-              required
               rows={3}
               placeholder="Jalan, Nomor Rumah, RT/RW, Kecamatan, Patokan..."
               value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              className="w-full p-3 sm:p-3.5 border border-[#dedbcf] rounded-xl bg-[#faf8f1] text-xs sm:text-base text-[#26321f] focus:outline-none focus:ring-2 focus:ring-[#31572c]"
+              onChange={(e) => {
+                setAddress(e.target.value);
+                if (errors.address) setErrors((prev) => ({ ...prev, address: undefined }));
+              }}
+              aria-invalid={!!errors.address}
+              className={`w-full p-3 sm:p-3.5 border rounded-xl bg-[#faf8f1] text-xs sm:text-base text-[#26321f] focus:outline-none focus:ring-2 transition-colors ${
+                errors.address
+                  ? "border-red-500 focus:ring-red-500 bg-red-50/40"
+                  : "border-[#dedbcf] focus:ring-[#31572c]"
+              }`}
             />
+            {errors.address && (
+              <p role="alert" className="text-xs font-semibold text-red-600 mt-1 flex items-center gap-1">
+                <span>⚠️</span> {errors.address}
+              </p>
+            )}
           </label>
         </fieldset>
 
