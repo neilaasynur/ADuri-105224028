@@ -44,8 +44,10 @@ projek-web/
 │   ├── produk/
 │   │   ├── page.tsx              # Halaman Katalog Seluruh Produk
 │   │   └── [slug]/page.tsx       # Halaman Detail Spesifikasi Produk (Dinamis)
-│   └── pembayaran/
-│       └── page.tsx              # Halaman Formulir Pemesanan & Pembayaran
+│   ├── pembayaran/
+│   │   └── page.tsx              # Halaman Formulir Pemesanan & Pembayaran
+│   └── ambil-sendiri/
+│       └── page.tsx              # Halaman Booking Kunjungan Kebun & Deposit
 ├── components/
 │   ├── Navbar.tsx                # Reusable Component: Navigasi Header
 │   ├── Footer.tsx                # Reusable Component: Informasi Footer
@@ -58,8 +60,13 @@ projek-web/
 │   └── durian.ts                 # Definisi antarmuka TypeScript
 ├── lib/
 │   └── crypto.ts                 # Modul komponen kriptografi produk
-└── __tests__/
-    └── crypto.test.ts            # Skenario uji otomatis (Vitest)
+├── __tests__/
+│   └── crypto.test.ts            # Skenario uji otomatis (Vitest)
+├── asset-inventory.md            # Inventarisasi aset data, software, & host
+├── dfd.md                        # Data Flow Diagram Level 1 & Trust Boundaries
+├── threat-model.md               # Analisis ancaman 12 skenario STRIDE
+├── risk-register.md              # Penilaian risiko & rencana kontrol Tugas 2/3
+└── AI_LOG.md                     # Catatan komprehensif penggunaan AI
 ```
 
 ---
@@ -132,3 +139,14 @@ Akses aplikasi melalui peramban di: `http://localhost:3000`
 ```bash
 npm test
 ```
+
+---
+
+## 🛡️ Bagian 4: Arsitektur Keamanan & Pemodelan Ancaman (Penanda `sec-0.1`)
+
+Dokumentasi analisis keamanan komprehensif produk ADuri disajikan dalam dokumen-dokumen terpisah berikut:
+1. **[Inventaris Aset Produk (`asset-inventory.md`)](asset-inventory.md)**: Klasifikasi tingkat sensitivitas Confidentiality, Integrity, dan Availability (CIA) untuk seluruh aset data, kredensial, perangkat lunak, dan layanan eksternal.
+2. **[Diagram Aliran Data & Trust Boundary (`dfd.md`)](dfd.md)**: Pemodelan DFD Level 1 dengan ID elemen lengkap (E1–E4, P1–P5, DS1–DS5, DF01–DF16), 3 batas kepercayaan (*Trust Boundaries*), dan penandaan aset terproteksi kriptografi.
+3. **[Model Ancaman STRIDE (`threat-model.md`)](threat-model.md)**: 12 skenario ancaman spesifik non-generik berbasis alur transaksi durian dan booking kunjungan kebun.
+4. **[Daftar Risiko & Rencana Kontrol (`risk-register.md`)](risk-register.md)**: Matriks kemungkinan–dampak, penetapan 5 risiko prioritas utama, dan rencana kontrol teknis yang dipetakan ke **Tugas 2** dan **Tugas 3**.
+5. **[Catatan Penggunaan AI (`AI_LOG.md`)](AI_LOG.md)**: Dokumentasi transparan penggunaan AI generatif dalam perancangan produk.
