@@ -4,7 +4,7 @@ import { useState, use, FormEvent } from "react";
 import Link from "next/link";
 import { DURIAN_PRODUCTS, PAYMENT_OPTIONS } from "@/data/products";
 import { PaymentMethodType } from "@/types/durian";
-import { skemaPembayaran } from "@/lib/skema";
+import { skemaPembayaran } from "@/schema/skema";
 import { z } from "zod";
 
 interface PaymentFormProps {

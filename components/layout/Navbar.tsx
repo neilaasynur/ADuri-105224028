@@ -3,12 +3,13 @@
 import { useState, Suspense } from "react";
 import Link from "next/link";
 import TautanNav, { Tautan } from "@/components/TautanNav";
+import { keluar } from "@/app/masuk/actions";
 
 const NAV_LINKS: Tautan[] = [
   { href: "/", label: "Beranda" },
-  { href: "/produk", label: "Katalog Durian" },
-  { href: "/tentang", label: "Tentang Kami" },
-  { href: "/ambil-sendiri", label: "Ambil Sendiri" },
+  { href: "/produk", label: "Katalog" },
+  { href: "/ambil-sendiri", label: "Wisata Kebun" },
+  { href: "/pembayaran", label: "Keranjang" },
 ];
 
 function NavFallback({ tautan }: { tautan: Tautan[] }) {
@@ -28,7 +29,11 @@ function NavFallback({ tautan }: { tautan: Tautan[] }) {
   );
 }
 
-export default function Navbar() {
+interface NavbarProps {
+  sesi?: { email: string } | null;
+}
+
+export default function Navbar({ sesi }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -102,13 +107,25 @@ export default function Navbar() {
           </Suspense>
 
           <div className="pt-2 md:pt-0">
-            <Link
-              href="/pembayaran"
-              onClick={() => setIsOpen(false)}
-              className="flex items-center justify-center bg-amber-400 hover:bg-amber-300 text-[#26321f] font-bold px-4 py-2.5 md:py-2 rounded-xl text-base md:text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white shadow-sm min-h-[44px]"
-            >
-              Pesanan / Pembayaran
-            </Link>
+            {sesi ? (
+              <form action={keluar}>
+                <button
+                  type="submit"
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center justify-center bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2.5 md:py-2 rounded-xl text-base md:text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white shadow-sm min-h-[44px] cursor-pointer"
+                >
+                  Keluar
+                </button>
+              </form>
+            ) : (
+              <Link
+                href="/masuk"
+                onClick={() => setIsOpen(false)}
+                className="flex items-center justify-center bg-amber-400 hover:bg-amber-300 text-[#26321f] font-bold px-4 py-2.5 md:py-2 rounded-xl text-base md:text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white shadow-sm min-h-[44px]"
+              >
+                Masuk / Daftar
+              </Link>
+            )}
           </div>
         </section>
       </nav>
