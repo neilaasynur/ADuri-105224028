@@ -2,7 +2,7 @@
 
 import { useState, FormEvent } from "react";
 import Link from "next/link";
-import { skemaKunjungan } from "@/lib/skema";
+import { skemaKunjungan } from "@/schema/skema";
 import { z } from "zod";
 
 const GOOGLE_MAPS_LINK = "https://maps.app.goo.gl/5U3uggCfscyyxQyg8";

@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Suspense } from "react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import NotifikasiPopUp from "@/components/NotifikasiPopUp";
+import { bacaSesi } from "@/schema/sesi";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -20,11 +23,13 @@ export const metadata: Metadata = {
     "Platform penjualan durian kebun keluarga Asynur di Riau. Pilihan varietas durian berkualitas manis legit, pengiriman segar, dan kunjungan ambil sendiri di kebun.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const sesi = await bacaSesi();
+
   return (
     <html
       lang="id"
@@ -40,7 +45,7 @@ export default function RootLayout({
         </a>
 
         {/* 1. Header & Navigasi Utama */}
-        <Navbar />
+        <Navbar sesi={sesi ? { email: sesi.email } : null} />
 
         {/* 2. Kontainer Konten Halaman Aktif */}
         <main id="main-content" className="flex-1">
@@ -49,6 +54,11 @@ export default function RootLayout({
 
         {/* 3. Footer Navigasi & Info Bisnis */}
         <Footer />
+
+        {/* 4. Pop-up Notifikasi Global di Bawah Layar */}
+        <Suspense fallback={null}>
+          <NotifikasiPopUp />
+        </Suspense>
       </body>
     </html>
   );
