@@ -86,5 +86,16 @@ Berikut saya lampirkan tangkapan layar hasil npx tsc --noEmit, npm run lint, dan
 ## 6. Kendala dan Penyelesaian
 Tidak ada
 ## 7. Catatan Pemanfaatan AI
-Alat, perintah utama, bagian yang digunakan, dan cara memverifikasinya.
-Tulis "Tidak menggunakan AI" apabila tidak menggunakan AI.
+1. **Alat AI:** Antigravity (Google DeepMind Agentic Coding Assistant).
+2. **Perintah Utama:**
+   - Melakukan audit kesesuaian proyek terhadap dokumen panduan *Modul 4 Praktikum PAW 2026*.
+   - Merapikan struktur folder `components/` ke pola modular (`features/`, `layout/`, `ui/`).
+   - Mengimplementasikan pengujian layout vs template (`KolomCatatan.tsx`, `layout.tsx`, `template.tsx`).
+   - Menambahkan pengamanan batas server dengan modul `server-only`.
+3. **Bagian yang Dihasilkan AI:**
+   - Pemisahan komponen navigasi `TautanNav.tsx`, halaman `app/tentang/page.tsx`, rute simulasi `app/uji/`, serta berkas dokumentasi teknis `docs/praktikum/modul-04.md`.
+4. **Cara Memverifikasi:**
+   - Melakukan kompilasi tipe statis (`npx tsc --noEmit`).
+   - Menjalankan seluruh rangkaian tes otomatis (`vitest run`).
+   - Menjalankan build produksi Next.js 16.4 (`npm run build`) dan memastikan seluruh 16 halaman statis dan parsial terkompilasi dengan kode keluar 0.
+

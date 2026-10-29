@@ -2,6 +2,8 @@
 
 import { useState, FormEvent } from "react";
 import Link from "next/link";
+import { skemaKunjungan } from "@/lib/skema";
+import { z } from "zod";
 
 const GOOGLE_MAPS_LINK = "https://maps.app.goo.gl/5U3uggCfscyyxQyg8";
 const OWNER_WA_NUMBER = "6281234567890";
@@ -28,31 +30,30 @@ export default function BookingForm() {
   const [isSuccess, setIsSuccess] = useState(false);
 
   const validate = (): boolean => {
-    const err: { fullName?: string; phone?: string; visitDate?: string; visitTime?: string } = {};
+    // Validasi menggunakan skema Zod (nama huruf abjad, nomor telepon angka, tanggal & jam wajib)
+    const hasil = skemaKunjungan.safeParse({
+      fullName,
+      phone,
+      visitDate,
+      visitTime,
+      visitorCount,
+      notes: notes || undefined,
+      paymentMethod,
+    });
 
-    if (!fullName.trim()) {
-      err.fullName = "Nama lengkap wajib diisi.";
-    } else if (fullName.trim().length < 3) {
-      err.fullName = "Nama lengkap minimal 3 karakter.";
+    if (!hasil.success) {
+      const fieldErrors = z.flattenError(hasil.error).fieldErrors;
+      setErrors({
+        fullName: fieldErrors.fullName?.[0],
+        phone: fieldErrors.phone?.[0],
+        visitDate: fieldErrors.visitDate?.[0],
+        visitTime: fieldErrors.visitTime?.[0],
+      });
+      return false;
     }
 
-    const phoneRegex = /^08[0-9]{8,12}$/;
-    if (!phone.trim()) {
-      err.phone = "Nomor WhatsApp aktif wajib diisi.";
-    } else if (!phoneRegex.test(phone.trim())) {
-      err.phone = "Nomor harus diawali '08' dan terdiri dari 10-14 digit angka.";
-    }
-
-    if (!visitDate) {
-      err.visitDate = "Tanggal rencana kunjungan wajib dipilih.";
-    }
-
-    if (!visitTime) {
-      err.visitTime = "Perkiraan jam kedatangan wajib dipilih.";
-    }
-
-    setErrors(err);
-    return Object.keys(err).length === 0;
+    setErrors({});
+    return true;
   };
 
   const handleSubmit = (e: FormEvent) => {
@@ -162,7 +163,7 @@ export default function BookingForm() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <label className="space-y-1 block">
               <span className="text-xs sm:text-sm font-semibold text-neutral-700 block">
-                Nama Lengkap <span className="text-red-500">*</span>:
+                Nama Lengkap (Huruf Abjad) <span className="text-red-500">*</span>:
               </span>
               <input
                 type="text"
@@ -186,7 +187,7 @@ export default function BookingForm() {
 
             <label className="space-y-1 block">
               <span className="text-xs sm:text-sm font-semibold text-neutral-700 block">
-                Nomor WhatsApp Aktif <span className="text-red-500">*</span>:
+                Nomor WhatsApp (Angka) <span className="text-red-500">*</span>:
               </span>
               <input
                 type="tel"

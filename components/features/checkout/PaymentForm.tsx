@@ -4,6 +4,8 @@ import { useState, use, FormEvent } from "react";
 import Link from "next/link";
 import { DURIAN_PRODUCTS, PAYMENT_OPTIONS } from "@/data/products";
 import { PaymentMethodType } from "@/types/durian";
+import { skemaPembayaran } from "@/lib/skema";
+import { z } from "zod";
 
 interface PaymentFormProps {
   searchParams: Promise<{ produk?: string }>;
@@ -45,33 +47,30 @@ export default function PaymentForm({ searchParams }: PaymentFormProps) {
   }).format(totalPrice);
 
   const validateForm = (): boolean => {
-    const newErrors: { fullName?: string; phone?: string; address?: string } = {};
+    // Validasi menggunakan skema Zod (nama huruf abjad, nomor telepon angka, alamat min 10)
+    const hasil = skemaPembayaran.safeParse({
+      fullName,
+      phone,
+      district,
+      address,
+      notes: notes || undefined,
+      quantity,
+      paymentMethod,
+      productSlug: selectedSlug,
+    });
 
-    // 1. Validasi Nama Lengkap (minimal 3 karakter)
-    if (!fullName.trim()) {
-      newErrors.fullName = "Nama lengkap wajib diisi.";
-    } else if (fullName.trim().length < 3) {
-      newErrors.fullName = "Nama lengkap minimal 3 karakter.";
+    if (!hasil.success) {
+      const fieldErrors = z.flattenError(hasil.error).fieldErrors;
+      setErrors({
+        fullName: fieldErrors.fullName?.[0],
+        phone: fieldErrors.phone?.[0],
+        address: fieldErrors.address?.[0],
+      });
+      return false;
     }
 
-    // 2. Validasi Nomor Telepon / WhatsApp (format Indonesia 08... minimal 10 digit)
-    const phoneRegex = /^08[0-9]{8,12}$/;
-    if (!phone.trim()) {
-      newErrors.phone = "Nomor WhatsApp aktif wajib diisi.";
-    } else if (!phoneRegex.test(phone.trim())) {
-      newErrors.phone = "Nomor harus diawali '08' dan terdiri dari 10-14 digit angka.";
-    }
-
-    // 3. Validasi Alamat Lengkap (minimal 10 karakter agar jelas)
-    if (!address.trim()) {
-      newErrors.address = "Alamat lengkap pengiriman wajib diisi.";
-    } else if (address.trim().length < 10) {
-      newErrors.address =
-        "Alamat terlalu singkat, mohon sertakan jalan, patokan, atau nomor rumah (min. 10 karakter).";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    setErrors({});
+    return true;
   };
 
   const handleSubmit = (e: FormEvent) => {
@@ -192,7 +191,7 @@ export default function PaymentForm({ searchParams }: PaymentFormProps) {
           <section className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <label className="space-y-1 block">
               <span className="text-xs sm:text-sm font-semibold text-neutral-700 block">
-                Nama Lengkap <span className="text-red-500">*</span>:
+                Nama Lengkap (Huruf Abjad) <span className="text-red-500">*</span>:
               </span>
               <input
                 type="text"
@@ -218,7 +217,7 @@ export default function PaymentForm({ searchParams }: PaymentFormProps) {
 
             <label className="space-y-1 block">
               <span className="text-xs sm:text-sm font-semibold text-neutral-700 block">
-                Nomor WhatsApp Aktif <span className="text-red-500">*</span>:
+                Nomor WhatsApp (Angka) <span className="text-red-500">*</span>:
               </span>
               <input
                 type="tel"
