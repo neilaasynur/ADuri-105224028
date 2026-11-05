@@ -101,20 +101,21 @@ export const skemaItem = z.object({
     .trim()
     .min(3, "Judul/nama varietas minimal 3 karakter")
     .max(80, "Judul/nama varietas maksimal 80 karakter"),
-  kategori: z.enum(["lokal", "unggulan", "premium"], {
+  kategori: z.enum(["lokal", "unggulan", "premium", "energi", "lingkungan", "kampus"], {
     error: "Pilih salah satu kategori varietas",
   }),
   harga: z.coerce
     .number()
     .min(10000, "Harga per kilogram minimal Rp10.000")
     .max(1000000, "Harga per kilogram maksimal Rp1.000.000")
-    .default(45000),
+    .default(45000)
+    .optional(),
   deskripsi: z
     .string()
     .trim()
     .min(10, "Deskripsi rasa & panen minimal 10 karakter")
     .max(300, "Deskripsi rasa & panen maksimal 300 karakter"),
-  tersedia: z.stringbool().default(false),
+  tersedia: z.boolean().default(true),
 });
 
 export type MasukanItem = z.infer<typeof skemaItem>;
@@ -128,3 +129,25 @@ export const skemaMasuk = z.object({
 });
 
 export type MasukanMasuk = z.infer<typeof skemaMasuk>;
+
+// 5. Skema Modul 6: Ulasan / Review Pelanggan
+export const skemaUlasan = z.object({
+  nama: z
+    .string()
+    .trim()
+    .min(2, "Nama minimal 2 karakter")
+    .max(60, "Nama maksimal 60 karakter"),
+  nilai: z.coerce
+    .number()
+    .int("Nilai harus bilangan bulat")
+    .min(1, "Nilai minimal 1")
+    .max(5, "Nilai maksimal 5"),
+  komentar: z
+    .string()
+    .trim()
+    .min(5, "Komentar minimal 5 karakter")
+    .max(500, "Komentar maksimal 500 karakter"),
+});
+
+export type MasukanUlasan = z.infer<typeof skemaUlasan>;
+

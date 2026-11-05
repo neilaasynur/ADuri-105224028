@@ -1,9 +1,45 @@
 import "server-only";
+import { prisma } from "@/lib/prisma";
+import type { Item } from "@/lib/tipe";
 import { DURIAN_PRODUCTS } from "@/data/products";
 import { Product } from "@/types/durian";
 import type { MasukanItem } from "@/schema/skema";
 
-// Penyimpanan data dinamis di memori server (globalThis bertahan saat Fast Refresh)
+// ==========================================
+// MODUL 6: PostgreSQL dan Prisma Client
+// ==========================================
+const kolomItem = {
+  id: true,
+  judul: true,
+  kategori: true,
+  deskripsi: true,
+  tersedia: true,
+  gambar: true,
+} as const;
+
+export async function ambilDaftarItem(): Promise<Item[]> {
+  return prisma.item.findMany({
+    select: kolomItem,
+    orderBy: { dibuatPada: "desc" },
+  });
+}
+
+export async function ambilItem(id: number) {
+  return prisma.item.findUnique({
+    where: { id },
+    select: {
+      ...kolomItem,
+      ulasan: {
+        select: { id: true, nama: true, nilai: true, komentar: true },
+        orderBy: { dibuatPada: "desc" },
+      },
+    },
+  });
+}
+
+// ==========================================
+// MODUL 4 & 5: Backward Compatibility Data
+// ==========================================
 const g = globalThis as unknown as { daftarProduk?: Product[] };
 export const daftarItem: Product[] = (g.daftarProduk ??= [...DURIAN_PRODUCTS]);
 
@@ -19,7 +55,6 @@ export function cariItem(id: number | string): Product | undefined {
   return daftarItem.find((p) => p.id === String(id) || p.slug === String(id));
 }
 
-// 1. Validasi Semantik Bisnis: Memastikan nama varietas belum pernah terdaftar
 export function judulSudahAda(judul: string): boolean {
   const dicari = judul.trim().toLowerCase();
   const slugDicari = dicari.replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-");
@@ -38,7 +73,6 @@ export function judulSudahAda(judul: string): boolean {
 
 export const namaSudahAda = judulSudahAda;
 
-// 2. Mutasi Data: Menambahkan varietas durian panen baru ke katalog aktif
 export function tambahItem(masukan: MasukanItem): Product {
   const maxId = daftarItem.reduce((max, item) => {
     const num = parseInt(item.id, 10);
@@ -52,18 +86,19 @@ export function tambahItem(masukan: MasukanItem): Product {
     .replace(/[^a-z0-9\s-]/g, "")
     .replace(/\s+/g, "-");
 
+  const hargaNum = masukan.harga ?? 45000;
   const hargaFormatted = new Intl.NumberFormat("id-ID", {
     style: "currency",
     currency: "IDR",
     maximumFractionDigits: 0,
-  }).format(masukan.harga);
+  }).format(hargaNum);
 
   const produkBaru: Product = {
     id: newId,
     slug: slug || `durian-panen-${newId}`,
     name: masukan.judul,
     tagline: `Varietas durian ${masukan.kategori} panen segar kebun keluarga`,
-    price: masukan.harga,
+    price: hargaNum,
     priceFormatted: hargaFormatted,
     unit: "kg",
     sweetness: 5,
