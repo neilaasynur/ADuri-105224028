@@ -5,19 +5,19 @@ import { useSearchParams } from "next/navigation";
 
 export default function NotifikasiPopUp() {
   const searchParams = useSearchParams();
-  const [tampil, setTampil] = useState(false);
+  const isMasuk = searchParams.get("status") === "masuk";
+  const [ditutup, setDitutup] = useState(false);
 
   useEffect(() => {
-    if (searchParams.get("status") === "masuk") {
-      setTampil(true);
+    if (isMasuk) {
       const timer = setTimeout(() => {
-        setTampil(false);
+        setDitutup(true);
       }, 5000);
       return () => clearTimeout(timer);
     }
-  }, [searchParams]);
+  }, [isMasuk]);
 
-  if (!tampil) return null;
+  if (!isMasuk || ditutup) return null;
 
   return (
     <aside
@@ -38,7 +38,7 @@ export default function NotifikasiPopUp() {
       </div>
       <button
         type="button"
-        onClick={() => setTampil(false)}
+        onClick={() => setDitutup(true)}
         aria-label="Tutup notifikasi"
         className="text-neutral-400 hover:text-white text-sm font-bold p-1.5 rounded-lg hover:bg-emerald-900/60 transition-colors cursor-pointer"
       >
