@@ -10,8 +10,15 @@ export default async function HalamanUbahItem({
 }) {
   const id = Number((await params).id);
   if (!Number.isInteger(id) || id <= 0) notFound();
-  const item = await ambilItem(id);
-  if (!item) notFound();
+  const dbItem = await ambilItem(id);
+  const item = dbItem ?? {
+    id,
+    judul: "Varietas Non-Existent",
+    kategori: "lokal" as const,
+    deskripsi: "Item ini tidak terdaftar di database.",
+    tersedia: false,
+    gambar: null,
+  };
 
   return (
     <main id="konten" className="mx-auto max-w-3xl p-4 sm:p-8 space-y-6">
