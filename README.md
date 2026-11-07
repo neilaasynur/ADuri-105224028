@@ -107,7 +107,48 @@ projek-web/
 
 ---
 
-## 🚀 Petunjuk Menjalankan Proyek
+## 📦 Bagian 4: Milestone 2 — Integrasi Server & Database Produk Web (PAW)
+
+Pada **Milestone 2 (v0.2 — Pekan 6)**, aplikasi ADuri mengintegrasikan logika server (*Server Actions*) dan basis data persisten **PostgreSQL** menggunakan **Prisma ORM 7**, menggantikan data tiruan (*mock data*) dari Milestone 1 (v0.1).
+
+### 1. Perkembangan Fitur dari v0.1 ke v0.2
+* **Penyimpanan Data Persisten**: Seluruh katalog durian dan ulasan pelanggan tersimpan secara permanen di basis data PostgreSQL. Data tetap utuh dan sinkron setelah halaman dimuat ulang.
+* **Server-Side Mutation**: Pengelolaan data menggunakan React Server Actions (`"use server"`) di App Router Next.js, meniadakan ketergantungan pada client-side state yang rentan manipulasi.
+* **Validasi Masukan Server (Zod)**: Setiap input formulir divalidasi secara ketat di sisi server sebelum diproses ke basis data, menghasilkan pesan kesalahan spesifik per *field*.
+
+### 2. Pemodelan Data Relasional (PostgreSQL & Prisma ORM 7)
+Basis data ADuri memodelkan hubungan relasional satu-ke-banyak (1:N) antara dua entitas utama:
+* **Entitas `Item` (Induk)**: Menyimpan varietas durian (`id`, `judul` unik, `kategori`, `deskripsi`, `tersedia`, `gambar`, `dibuatPada`).
+* **Entitas `Ulasan` (Anak)**: Menyimpan testimoni pembeli (`id`, `nama`, `nilai` 1–5, `komentar`, `dibuatPada`, `itemId`).
+* **Constraint & Relasi Data**:
+  * Constraint Unik Sederhana: `Item.judul` unik untuk mencegah duplikasi nama varietas durian.
+  * Constraint Unik Komposit: `@@unique([itemId, nama])` memastikan satu pembeli hanya memberi ulasan satu kali per varietas durian.
+  * Aturan Integritas Referential: **`onDelete: Restrict`** melindungi ulasan pembeli (*social proof*) agar tidak terhapus tanpa sengaja akibat *cascade deletion*. Penghapusan item yang memiliki ulasan wajib melalui transaksi sadar (`prisma.$transaction`).
+
+### 3. Implementasi Operasi CRUD Lengkap
+* **Create**: Penambahan varietas durian baru via modal katalog dan penambahan ulasan pembeli pada halaman detail durian.
+* **Read**: Pengambilan daftar varietas durian real-time dari PostgreSQL dan penghitungan agregat rating rata-rata ulasan.
+* **Update**: Pembaruan judul, kategori, dan deskripsi durian melalui Server Action `ubahItem()`.
+* **Delete**: Penghapusan varietas durian dengan verifikasi relasi referensial (penolakan jika memiliki ulasan) dan penghapusan melalui transaksi atomik.
+
+### 4. Ringkasan 10 Skenario Pengujian CRUD & Relasi
+Pengujian otomatis menggunakan Vitest pada `__tests__/crud-modul-06.test.ts` (11 pengujian, **100% Lulus**):
+1. [CRUD-01] Tambah item durian sah $\to$ tersimpan di database dan tampil di katalog.
+2. [VALIDASI-01] Tambah item dengan judul kembar $\to$ ditolak constraint unik `P2002`.
+3. [VALIDASI-02] Tambah item dengan field kosong $\to$ ditolak validasi Zod dengan pesan galat per field.
+4. [CRUD-02] Ubah deskripsi item $\to$ data terupdate di PostgreSQL.
+5. [VALIDASI-03] Ubah item yang sudah dihapus $\to$ ditolak galat rekod tidak ditemukan `P2025`.
+6. [RELASI-01] Pembuktian RESTRICT: Hapus item yang memiliki ulasan tanpa transaksi $\to$ ditolak foreign key `P2003`.
+7. [CRUD-03] Tambah ulasan pembeli sah $\to$ rating dan komentar terhubung ke item.
+8. [RELASI-02] Transaksi atomik: Rollback transaksi saat perintah kedua gagal $\to$ ulasan tetap utuh.
+9. [CRUD-04] Hapus item beserta seluruh ulasannya via `prisma.$transaction` $\to$ berhasil bersih.
+10. [VALIDASI-04] Ulasan ganda dengan nama sama pada item sama $\to$ ditolak komposit unik `P2002`.
+
+Laporan teknis lengkap beserta diagram ERD dan tangkapan layar antarmuka tersedia di **[`docs/praktikum/modul-06.md`](docs/praktikum/modul-06.md)**.
+
+---
+
+## 🚀 Petunjuk Menjalankan Proyek & Database
 
 ### Prasyarat
 - Node.js 18+
