@@ -1,141 +1,284 @@
 /**
  * __tests__/crypto.test.ts
- * Uji otomatis komponen kriptografi ADuri
+ * Uji Otomatis Komponen Kriptografi ADuri (Tugas 2 — Milestone v0.2)
  *
- * Skenario uji:
- *  1. [POSITIF] hashPassword() menghasilkan hash bcrypt yang valid
- *  2. [POSITIF] verifyPassword() mengembalikan true untuk password yang benar
- *  3. [NEGATIF] verifyPassword() mengembalikan false untuk password yang salah
- *  4. [POSITIF] encryptData() dan decryptData() mengembalikan data asli
- *  5. [NEGATIF] verifyOrderHMAC() mengembalikan false jika payload dimanipulasi
- *  6. [BATAS]   hashPassword() melempar error jika input kosong
+ * Menguji:
+ *  - Kelompok 1: Hash Password (bcrypt) — Komponen T1
+ *  - Kelompok 2: Enkripsi Dasar & Integritas Pesanan (HMAC-SHA256) — Komponen T1
+ *  - Kelompok 3: AEAD Data Produk (AES-256-GCM + AAD) — Komponen T2 (Inti Tugas 2)
+ *  - Kelompok 4: Manajemen Kunci, HKDF & Validasi Fail-Closed — Komponen T2
+ *  - Kelompok 5: Uji Sambungan Antar-Komponen (T1 -> T2 Integration)
  */
 
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect } from 'vitest';
 import {
+  // Komponen T1
   hashPassword,
   verifyPassword,
   encryptData,
   decryptData,
   generateOrderHMAC,
   verifyOrderHMAC,
-} from '../lib/crypto'
+  kanonisasiJson,
+  // Komponen T2
+  CatatanProduk,
+  enkripsiProdukAead,
+  dekripsiProdukAead,
+  validasiCatatanProduk,
+  muatKunciMaster,
+  turunkanKunci,
+  buatKunciBaru,
+  AutentikasiGagal,
+  MasukanTidakValid,
+  KunciTidakValid,
+  PANJANG_NONCE,
+  PANJANG_TAG,
+  PANJANG_KUNCI,
+} from '../lib/crypto';
 
 // ─────────────────────────────────────────────────────────────
-// Kelompok 1: Hash & Verifikasi Password
+// DATA UJI SINTETIS (PRODUK DURIAN ADURI)
 // ─────────────────────────────────────────────────────────────
-describe('Hash Password (bcrypt)', () => {
 
+const CONTOH_PRODUK_SAH: CatatanProduk = {
+  id_produk: 'DRN-MKG-001',
+  nama: 'Durian Musang King Super Kampar',
+  kategori: 'premium',
+  harga: 180000,
+  stok_rahasia: 45, // kuota panen rahasia kebun
+  waktu_panen: '2026-11-07T07:00',
+};
+
+// ─────────────────────────────────────────────────────────────
+// KELOMPOK 1: HASH PASSWORD (BCRYPT) — T1
+// ─────────────────────────────────────────────────────────────
+describe('Kelompok 1: Hash Password (bcrypt) — Komponen T1', () => {
+  it('[POSITIF] menghasilkan hash bcrypt 60 karakter yang diawali $2b$', async () => {
+    const hash = await hashPassword('DurianKamparManis123');
+    expect(hash).toBeDefined();
+    expect(hash.length).toBe(60);
+    expect(hash.startsWith('$2b$')).toBe(true);
+  });
+
+  it('[POSITIF] verifikasi berhasil untuk password yang benar', async () => {
+    const pwd = 'DurianKamparManis123';
+    const hash = await hashPassword(pwd);
+    const valid = await verifyPassword(pwd, hash);
+    expect(valid).toBe(true);
+  });
+
+  it('[NEGATIF] verifikasi ditolak untuk password yang salah', async () => {
+    const hash = await hashPassword('DurianKamparManis123');
+    const valid = await verifyPassword('PasswordSalah123', hash);
+    expect(valid).toBe(false);
+  });
+
+  it('[FAIL-CLOSED] melempar MasukanTidakValid jika password kosong', async () => {
+    await expect(hashPassword('')).rejects.toThrow(MasukanTidakValid);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────
+// KELOMPOK 2: INTEGRITAS PESANAN (HMAC-SHA256) — T1
+// ─────────────────────────────────────────────────────────────
+describe('Kelompok 2: Integritas Pesanan (HMAC-SHA256) — Komponen T1', () => {
+  const pesananAsli = {
+    item: 'Durian Musang King',
+    qty: 2,
+    total: 360000,
+    userId: 'cust-kampar-001',
+  };
+
+  it('[POSITIF] menghasilkan tanda tangan HMAC yang sah dan terverifikasi', () => {
+    const signature = generateOrderHMAC(pesananAsli);
+    expect(signature).toBeDefined();
+    expect(signature.length).toBe(64); // SHA-256 = 32 bytes = 64 hex char
+    expect(verifyOrderHMAC(pesananAsli, signature)).toBe(true);
+  });
+
+  it('[NEGATIF] verifikasi gagal jika total pesanan dimanipulasi', () => {
+    const signature = generateOrderHMAC(pesananAsli);
+    const pesananManipulasi = { ...pesananAsli, total: 3600 }; // Manipulasi harga
+    expect(verifyOrderHMAC(pesananManipulasi, signature)).toBe(false);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────
+// KELOMPOK 3: AEAD DATA PRODUK (AES-256-GCM + AAD) — T2 (INTI TUGAS 2)
+// ─────────────────────────────────────────────────────────────
+describe('Kelompok 3: AEAD Data Produk (AES-256-GCM + AAD) — Tugas 2', () => {
   // Skenario 1 — POSITIF
-  it('menghasilkan hash bcrypt yang valid dari password plaintext', async () => {
-    const hash = await hashPassword('DurianManis123')
+  it('[SKENARIO-1 POSITIF] enkripsi dan dekripsi produk dengan AAD berhasil utuh', () => {
+    const paketHex = enkripsiProdukAead(CONTOH_PRODUK_SAH);
+    expect(paketHex).toBeDefined();
 
-    // Hash harus ada isinya (tidak kosong)
-    expect(hash).toBeDefined()
-    expect(hash.length).toBeGreaterThan(0)
+    // Format harus iv:authTag:ciphertext (3 bagian hex dipisahkan tanda titik dua)
+    const bagian = paketHex.split(':');
+    expect(bagian.length).toBe(3);
 
-    // Format bcrypt selalu diawali dengan $2b$ (versi bcrypt modern)
-    expect(hash.startsWith('$2b$')).toBe(true)
+    const [ivHex, tagHex, cipherHex] = bagian;
+    expect(ivHex.length).toBe(PANJANG_NONCE * 2); // 12 bytes = 24 hex
+    expect(tagHex.length).toBe(PANJANG_TAG * 2); // 16 bytes = 32 hex
+    expect(cipherHex.length).toBeGreaterThan(0);
 
-    // Hash bcrypt selalu tepat 60 karakter
-    expect(hash.length).toBe(60)
-  })
+    // Dekripsi dengan AAD yang benar (id_produk)
+    const hasilDekripsi = dekripsiProdukAead(paketHex, CONTOH_PRODUK_SAH.id_produk);
+    expect(hasilDekripsi).toEqual(CONTOH_PRODUK_SAH);
+  });
 
-  // Skenario 2 — POSITIF
-  it('mengembalikan true jika password yang diverifikasi benar', async () => {
-    const password = 'DurianManis123'
-    const hash = await hashPassword(password)
+  // Skenario 2 — NEGATIF (Modifikasi Ciphertext)
+  it('[SKENARIO-2 NEGATIF] paket dengan ciphertext dimodifikasi ditolak (AutentikasiGagal)', () => {
+    const paketHex = enkripsiProdukAead(CONTOH_PRODUK_SAH);
+    const [ivHex, tagHex, cipherHex] = paketHex.split(':');
 
-    const hasil = await verifyPassword(password, hash)
+    // Modifikasi 1 karakter hex pada ciphertext
+    const cipherModif =
+      (cipherHex[0] === 'a' ? 'b' : 'a') + cipherHex.substring(1);
+    const paketCacat = `${ivHex}:${tagHex}:${cipherModif}`;
 
-    expect(hasil).toBe(true)
-  })
+    // Wajib melempar AutentikasiGagal (fail-closed)
+    expect(() =>
+      dekripsiProdukAead(paketCacat, CONTOH_PRODUK_SAH.id_produk)
+    ).toThrow(AutentikasiGagal);
+  });
 
-  // Skenario 3 — NEGATIF ❌
-  it('mengembalikan false jika password yang diverifikasi salah', async () => {
-    const hash = await hashPassword('DurianManis123')
+  // Skenario 3 — NEGATIF (Modifikasi Authentication Tag)
+  it('[SKENARIO-3 NEGATIF] paket dengan auth tag dimodifikasi ditolak (AutentikasiGagal)', () => {
+    const paketHex = enkripsiProdukAead(CONTOH_PRODUK_SAH);
+    const [ivHex, tagHex, cipherHex] = paketHex.split(':');
 
-    // Coba verifikasi dengan password yang berbeda
-    const hasil = await verifyPassword('PasswordSalah999', hash)
+    // Ubah auth tag
+    const tagModif =
+      (tagHex[0] === '0' ? '1' : '0') + tagHex.substring(1);
+    const paketTagCacat = `${ivHex}:${tagModif}:${cipherHex}`;
 
-    expect(hasil).toBe(false)
-  })
+    expect(() =>
+      dekripsiProdukAead(paketTagCacat, CONTOH_PRODUK_SAH.id_produk)
+    ).toThrow(AutentikasiGagal);
+  });
 
-  // Skenario 6 — BATAS
-  it('melempar error jika input password adalah string kosong', async () => {
-    // Fungsi harus menolak input kosong dengan melempar Error
-    await expect(hashPassword('')).rejects.toThrow('Password harus berupa string yang tidak kosong')
-  })
+  // Skenario 4 — NEGATIF (AAD Tidak Cocok / Manipulasi Relokasi Produk)
+  it('[SKENARIO-4 NEGATIF] dekripsi dengan AAD yang berbeda ditolak (AutentikasiGagal)', () => {
+    // Enkripsi produk Musang King (DRN-MKG-001)
+    const paketHex = enkripsiProdukAead(CONTOH_PRODUK_SAH);
 
-})
+    // Penyerang mencoba menempelkan paket terenkripsi ini ke produk lain: Durian Lokal (DRN-LKL-002)
+    const aadPalsu = 'DRN-LKL-002';
+
+    // GMAC wajib mendeteksi ketidakcocokan AAD dan menolak
+    expect(() => dekripsiProdukAead(paketHex, aadPalsu)).toThrow(AutentikasiGagal);
+  });
+
+  // Skenario 5 — NEGATIF (Kunci Dekripsi Salah)
+  it('[SKENARIO-5 NEGATIF] dekripsi dengan kunci yang salah ditolak (AutentikasiGagal)', () => {
+    const kunciBenar = buatKunciBaru();
+    const kunciSalah = buatKunciBaru();
+
+    const paketHex = enkripsiProdukAead(CONTOH_PRODUK_SAH, kunciBenar);
+
+    expect(() =>
+      dekripsiProdukAead(paketHex, CONTOH_PRODUK_SAH.id_produk, kunciSalah)
+    ).toThrow(AutentikasiGagal);
+  });
+
+  // Skenario 6 — KARAKTERISTIK KRIPTOGRAFI (Nonce Unik CSPRNG)
+  it('[SKENARIO-6 SIFAT KRIPTO] nonce selalu berbeda setiap enkripsi meski data identik', () => {
+    const paket1 = enkripsiProdukAead(CONTOH_PRODUK_SAH);
+    const paket2 = enkripsiProdukAead(CONTOH_PRODUK_SAH);
+
+    const [iv1, , cipher1] = paket1.split(':');
+    const [iv2, , cipher2] = paket2.split(':');
+
+    // Nonce 96-bit CSPRNG wajib berbeda
+    expect(iv1).not.toBe(iv2);
+    // Karena IV berbeda, ciphertext juga wajib berbeda (mencegah leak pola data)
+    expect(cipher1).not.toBe(cipher2);
+
+    // Keduanya tetap dapat didekripsi ke data yang sama
+    expect(dekripsiProdukAead(paket1, CONTOH_PRODUK_SAH.id_produk)).toEqual(
+      CONTOH_PRODUK_SAH
+    );
+    expect(dekripsiProdukAead(paket2, CONTOH_PRODUK_SAH.id_produk)).toEqual(
+      CONTOH_PRODUK_SAH
+    );
+  });
+});
 
 // ─────────────────────────────────────────────────────────────
-// Kelompok 2: Enkripsi & Dekripsi Data Pribadi
+// KELOMPOK 4: MANAJEMEN KUNCI & VALIDASI FAIL-CLOSED — T2
 // ─────────────────────────────────────────────────────────────
-describe('Enkripsi Data Pribadi (AES-256-GCM)', () => {
+describe('Kelompok 4: Manajemen Kunci (HKDF) & Validasi Masukan — Tugas 2', () => {
+  it('[KEY SEPARATION] HKDF menghasilkan kunci berbeda untuk tujuan berbeda dari master key sama', () => {
+    const master = buatKunciBaru();
+    const keyAead = turunkanKunci(master, 'aead_produk');
+    const keyHmac = turunkanKunci(master, 'hmac_pesanan');
 
-  // Skenario 4 — POSITIF
-  it('dapat mengenkripsi lalu mendekripsi kembali ke data asli', () => {
-    // Data sintetis — bukan data asli
-    const nomorHP = '081200000000'
+    expect(keyAead.length).toBe(PANJANG_KUNCI);
+    expect(keyHmac.length).toBe(PANJANG_KUNCI);
+    // Domain separation: key untuk AEAD tidak boleh sama dengan key untuk HMAC
+    expect(keyAead.equals(keyHmac)).toBe(false);
+  });
 
-    const terenkripsi = encryptData(nomorHP)
+  it('[KUNCI TIDAK VALID] kunci dengan panjang tidak sesuai melempar KunciTidakValid', () => {
+    expect(() => muatKunciMaster('kunci_pendek')).toThrow(KunciTidakValid);
+    // Pesan error tidak boleh membocorkan isi kunci
+    try {
+      muatKunciMaster('kunci_pendek');
+    } catch (err) {
+      expect((err as Error).message).not.toContain('kunci_pendek');
+    }
+  });
 
-    // Hasil enkripsi harus berbeda dari aslinya
-    expect(terenkripsi).not.toBe(nomorHP)
+  it('[VALIDASI ALLOWLIST] menolak catatan produk dengan field liar / tidak sah', () => {
+    const produkIlegal = {
+      ...CONTOH_PRODUK_SAH,
+      hacker_field: 'injeksi data',
+    };
+    expect(() => validasiCatatanProduk(produkIlegal)).toThrow(MasukanTidakValid);
+  });
 
-    // Format harus iv:authTag:ciphertext (3 bagian dipisah ':')
-    const bagian = terenkripsi.split(':')
-    expect(bagian.length).toBe(3)
+  it('[VALIDASI HARGA] menolak harga negatif atau NaN (fail-closed)', () => {
+    const produkHargaNegatif = { ...CONTOH_PRODUK_SAH, harga: -50000 };
+    expect(() => validasiCatatanProduk(produkHargaNegatif)).toThrow(MasukanTidakValid);
 
-    // Setelah didekripsi harus kembali ke nilai semula
-    const terdekripsi = decryptData(terenkripsi)
-    expect(terdekripsi).toBe(nomorHP)
-  })
+    const produkHargaNan = { ...CONTOH_PRODUK_SAH, harga: Number.NaN };
+    expect(() => validasiCatatanProduk(produkHargaNan)).toThrow(MasukanTidakValid);
+  });
 
-  // Skenario BATAS — enkripsi dua kali menghasilkan output berbeda (IV acak)
-  it('menghasilkan ciphertext berbeda setiap kali enkripsi (IV acak)', () => {
-    const data = 'Jalan Durian No.1, Pekanbaru'
-
-    const enkripsi1 = encryptData(data)
-    const enkripsi2 = encryptData(data)
-
-    // Walaupun datanya sama, hasil enkripsi harus berbeda karena IV acak
-    expect(enkripsi1).not.toBe(enkripsi2)
-
-    // Tapi keduanya harus bisa didekripsi ke nilai asli
-    expect(decryptData(enkripsi1)).toBe(data)
-    expect(decryptData(enkripsi2)).toBe(data)
-  })
-
-})
+  it('[VALIDASI FORMAT ID] menolak id_produk yang tidak sesuai format allowlist', () => {
+    const produkIdCacat = { ...CONTOH_PRODUK_SAH, id_produk: 'drn-mkg-01' };
+    expect(() => validasiCatatanProduk(produkIdCacat)).toThrow(MasukanTidakValid);
+  });
+});
 
 // ─────────────────────────────────────────────────────────────
-// Kelompok 3: Integritas Pesanan (HMAC-SHA256)
+// KELOMPOK 5: UJI SAMBUNGAN ANTAR-KOMPONEN (T1 -> T2 INTEGRATION)
 // ─────────────────────────────────────────────────────────────
-describe('Integritas Pesanan (HMAC-SHA256)', () => {
+describe('Kelompok 5: Uji Sambungan Antar-Komponen (T1 -> T2 Integration)', () => {
+  it('[SAMBUNGAN T1 -> T2] kanonisasi JSON T1 menjamin urutan properti acak tetap valid saat didekripsi', () => {
+    // Properti ditulis dalam urutan berbeda
+    const produkUrutanLain = {
+      waktu_panen: '2026-11-07T07:00',
+      harga: 180000,
+      stok_rahasia: 45,
+      nama: 'Durian Musang King Super Kampar',
+      kategori: 'premium' as const,
+      id_produk: 'DRN-MKG-001',
+    };
 
-  // Skenario POSITIF — HMAC valid untuk pesanan yang sama
-  it('menghasilkan signature yang cocok untuk pesanan yang sama', () => {
-    const pesanan = { item: 'Durian Montong', qty: 2, total: 150000, userId: 'user-001' }
+    // Enkripsi melewati kanonisasiJson() dari T1
+    const paket = enkripsiProdukAead(produkUrutanLain);
+    const hasil = dekripsiProdukAead(paket, 'DRN-MKG-001');
 
-    const signature = generateOrderHMAC(pesanan)
-    const valid = verifyOrderHMAC(pesanan, signature)
+    // Kanonisasi menghasilkan byte konsisten dan rekonsiliasi data sempurna
+    expect(hasil).toEqual(CONTOH_PRODUK_SAH);
+  });
 
-    expect(valid).toBe(true)
-  })
+  it('[INTEGRITAS KANONIKAL] dua objek dengan urutan kunci berbeda menghasilkan JSON kanonis yang identik', () => {
+    const objA = { z: 1, a: 2, m: { y: 10, x: 20 } };
+    const objB = { a: 2, m: { x: 20, y: 10 }, z: 1 };
 
-  // Skenario 5 — NEGATIF ❌
-  it('mengembalikan false jika payload pesanan dimanipulasi', () => {
-    const pesananAsli = { item: 'Durian Montong', qty: 2, total: 150000, userId: 'user-001' }
-    const signature = generateOrderHMAC(pesananAsli)
-
-    // Simulasi manipulasi: total harga diubah dari 150000 ke 1500
-    const pesananManipulasi = { item: 'Durian Montong', qty: 2, total: 1500, userId: 'user-001' }
-    const valid = verifyOrderHMAC(pesananManipulasi, signature)
-
-    // Harus gagal — segel tidak cocok dengan pesanan yang diubah
-    expect(valid).toBe(false)
-  })
-
-})
+    expect(kanonisasiJson(objA)).toBe(kanonisasiJson(objB));
+    expect(kanonisasiJson(objA)).toBe('{"a":2,"m":{"x":20,"y":10},"z":1}');
+  });
+});

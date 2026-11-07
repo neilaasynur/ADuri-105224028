@@ -14,6 +14,14 @@ Dokumen ini mencatat seluruh penggunaan AI generatif dalam pengerjaan komponen k
 | 4 | Google Antigravity (Gemini) | Melakukan permodelan ancaman menggunakan metodologi STRIDE | "Tulis minimal 10 threat STRIDE di threat-model.md, masing-masing menunjuk elemen DFD dan aset terdampak" | Dokumen `threat-model.md` berisi 12 ancaman spesifik (non-generik) mencakup kategori S, T, R, I, D, E beserta kondisi produk riil dan konsekuensinya | Memastikan setiap ancaman menunjuk ID elemen DFD dan ID aset secara presisi tanpa kalimat abstrak generik |
 | 5 | Google Antigravity (Gemini) | Menyusun matriks risiko kemungkinan-dampak dan rencana kontrol | "Nilai kemungkinan dan dampak setiap threat dengan alasan dari kondisi produk, lalu pilih lima risiko prioritas di risk-register.md... petakan ke Tugas 2 atau Tugas 3" | Dokumen `risk-register.md` memuat penilaian risiko 12 ancaman dengan alasan spesifik, penetapan 5 risiko prioritas, serta rencana kontrol teknis yang dipetakan ke Tugas 2 & 3 | Memeriksa formula risiko (Kemungkinan × Dampak), justifikasi non-generik, dan keterkaitan kontrol dengan demonstrasi |
 
+## 2026-11-07 — Tugas 2 (tag v0.2)
+- Tool               : Google Antigravity (Gemini 3.8 Flash High)
+- Tujuan             : Merancang implementasi AEAD (AES-256-GCM) dengan AAD, pemisahan domain kunci HKDF-SHA256, dan skenario uji fail-closed untuk data produk durian
+- Ringkasan prompt   : "implementasikan AEAD AES-256-GCM dengan AAD id_produk, derivasi kunci HKDF RFC 5869, dan pengujian kondisi tidak sah sesuai rubrik R2"
+- Bagian yang digunakan : Struktur fungsi `enkripsiProdukAead`, `dekripsiProdukAead`, `turunkanKunci`, `validasiCatatanProduk` di `lib/crypto.ts`, serta 19 skenario uji di `__tests__/crypto.test.ts`
+- Bagian yang diubah    : Nonce diatur 12-byte CSPRNG (`randomBytes(12)`) per enkripsi; AAD diikat ke `id_produk` durian; exception penolakan dibungkus ke `AutentikasiGagal` dan `MasukanTidakValid` secara fail-closed; kanonisasi deterministik T1 dihubungkan ke T2
+- Verifikasi         : Merujuk ke standar NIST SP 800-38D, RFC 5869, dokumentasi Node.js crypto, dan contoh repositori MeterLog v0.2; seluruh 19 skenario uji otomatis pada `__tests__/crypto.test.ts` lulus 100% (termasuk uji negatif ciphertext/tag diubah, AAD salah, dan kunci salah)
+
 ---
 
 ## Pernyataan Integritas Akademik
