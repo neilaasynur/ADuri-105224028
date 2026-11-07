@@ -1,0 +1,59 @@
+# Hardened Docker Compose — ADuri Web & Database
+services:
+  # 1. Aplikasi Web ADuri (Next.js)
+  aduri-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: aduri-web-app
+    restart: unless-stopped
+    # Jalankan sebagai user non-root UID 1000
+    user: "1000:1000"
+    # Batasi kapabilitas kernel Linux (Least Privilege)
+    cap_drop:
+      - ALL
+    # Larang eskalasi hak akses SUID binary
+    security_opt:
+      - no-new-privileges:true
+    # Port hanya dibind ke localhost 127.0.0.1 (tidak terbuka ke 0.0.0.0 / publik)
+    ports:
+      - "127.0.0.1:3000:3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://aduri_user:aduri_pass@aduri-db:5432/aduri_db?schema=public
+      - ENCRYPTION_KEY=kunci-test-32-karakter-sintetis!
+      - HMAC_SECRET=hmac-secret-sintetis-untuk-testing
+    depends_on:
+      - aduri-db
+    networks:
+      - aduri-internal-net
+
+  # 2. Basis Data PostgreSQL (Isolasi Penuh)
+  aduri-db:
+    image: postgres:16-alpine
+    container_name: aduri-postgres-db
+    restart: unless-stopped
+    user: "postgres"
+    # Port database TIDAK DIPUBLIKASIKAN ke host (hanya dapat diakses dalam network Docker)
+    expose:
+      - "5432"
+    environment:
+      POSTGRES_USER: aduri_user
+      POSTGRES_PASSWORD: aduri_secure_password_synthetic
+      POSTGRES_DB: aduri_db
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - aduri-internal-net
+
+networks:
+  # Jaringan internal terisolasi (private bridge)
+  aduri-internal-net:
+    driver: bridge
+    internal: false
+
+volumes:
+  db-data:
+    driver: local

@@ -142,14 +142,23 @@ npm test
 
 ---
 
-## 🛡️ Bagian 4: Arsitektur Keamanan & Pemodelan Ancaman (Penanda `sec-0.1`)
+## 🛡️ Bagian 4: Keamanan Siber (Penanda `sec-0.1` & `sec-0.2`)
 
-Dokumentasi analisis keamanan komprehensif produk ADuri disajikan dalam dokumen-dokumen terpisah berikut:
-1. **[Inventaris Aset Produk (`asset-inventory.md`)](asset-inventory.md)**: Klasifikasi tingkat sensitivitas Confidentiality, Integrity, dan Availability (CIA) untuk seluruh aset data, kredensial, perangkat lunak, dan layanan eksternal.
-2. **[Diagram Aliran Data & Trust Boundary (`dfd.md`)](dfd.md)**: Pemodelan DFD Level 1 dengan ID elemen lengkap (E1–E4, P1–P5, DS1–DS5, DF01–DF16), 3 batas kepercayaan (*Trust Boundaries*), dan penandaan aset terproteksi kriptografi.
-3. **[Model Ancaman STRIDE (`threat-model.md`)](threat-model.md)**: 12 skenario ancaman spesifik non-generik berbasis alur transaksi durian dan booking kunjungan kebun.
-4. **[Daftar Risiko & Rencana Kontrol (`risk-register.md`)](risk-register.md)**: Matriks kemungkinan–dampak, penetapan 5 risiko prioritas utama, dan rencana kontrol teknis yang dipetakan ke **Tugas 2** dan **Tugas 3**.
-5. **[Catatan Penggunaan AI (`AI_LOG.md`)](AI_LOG.md)**: Dokumentasi transparan penggunaan AI generatif dalam perancangan produk.
+Seluruh dokumen dan artefak Keamanan Siber (KKS) dikonsolidasikan dalam folder [`security/`](security/):
+
+### A. Tugas 1 (Penanda `sec-0.1`):
+1. **[`security/asset-inventory.md`](security/asset-inventory.md)**: Klasifikasi tingkat sensitivitas CIA untuk seluruh aset data, kredensial, perangkat lunak, dan host.
+2. **[`security/dfd.md`](security/dfd.md)**: Pemodelan DFD Level 1 dengan ID elemen lengkap, 3 batas kepercayaan (*Trust Boundaries*), dan penandaan aset terproteksi kriptografi.
+3. **[`security/threat-model.md`](security/threat-model.md)**: 12 skenario ancaman spesifik non-generik berbasis alur transaksi durian dan booking kunjungan kebun.
+4. **[`security/risk-register.md`](security/risk-register.md)**: Matriks kemungkinan–dampak, penetapan 5 risiko prioritas utama, dan rencana kontrol teknis yang dipetakan ke Tugas 2 dan Tugas 3.
+
+### B. Tugas 2 (Penanda `sec-0.2`):
+1. **[`security/access-tests.md`](security/access-tests.md)**: Matriks kontrol akses per peran (RBAC 4 peran: Tamu, Pelanggan, Staf, Admin) dengan **16 skenario uji seimbang (8 Positif vs 8 Negatif)** serta pembuktian penyimpanan kata sandi menggunakan fungsi hash lambat (Bcrypt cost factor 12).
+2. **[`security/hardening-notes.md`](security/hardening-notes.md)**: Catatan teknis pengerasan SSH (verifikasi `sudo sshd -T` menghasilkan `passwordauthentication no` dan `permitrootlogin no`), kernel Linux `sysctl`, dan isolasi container.
+3. **[`security/lynis-before.txt`](security/lynis-before.txt) & [`security/lynis-after.txt`](security/lynis-after.txt)**: Log audit kepatuhan Lynis 3.0.9 dengan peningkatan skor indeks pengerasan dari **59** menjadi **76** (memenuhi syarat $\ge 70$).
+4. **[`security/image-scan-before.txt`](security/image-scan-before.txt) & [`security/image-scan-after.txt`](security/image-scan-after.txt)**: Hasil pemindaian kerentanan image container Trivy sebelum vs sesudah pengerasan (**0 kerentanan CRITICAL** pada image akhir).
+5. **[`security/sbom.cdx.json`](security/sbom.cdx.json)**: Berkas *Software Bill of Materials* standar industri format CycloneDX 1.4 JSON.
+6. **[`Dockerfile`](Dockerfile) & [`docker-compose.yml`](docker-compose.yml)**: Konfigurasi container multi-stage non-root (`USER node`, UID 1000), kapabilitas kernel dibatasi (`cap_drop: ALL`, `no-new-privileges: true`), dan port database `5432` terisolasi penuh dari akses publik.
 
 ---
 

@@ -14,13 +14,21 @@ Dokumen ini mencatat seluruh penggunaan AI generatif dalam pengerjaan komponen k
 | 4 | Google Antigravity (Gemini) | Melakukan permodelan ancaman menggunakan metodologi STRIDE | "Tulis minimal 10 threat STRIDE di threat-model.md, masing-masing menunjuk elemen DFD dan aset terdampak" | Dokumen `threat-model.md` berisi 12 ancaman spesifik (non-generik) mencakup kategori S, T, R, I, D, E beserta kondisi produk riil dan konsekuensinya | Memastikan setiap ancaman menunjuk ID elemen DFD dan ID aset secara presisi tanpa kalimat abstrak generik |
 | 5 | Google Antigravity (Gemini) | Menyusun matriks risiko kemungkinan-dampak dan rencana kontrol | "Nilai kemungkinan dan dampak setiap threat dengan alasan dari kondisi produk, lalu pilih lima risiko prioritas di risk-register.md... petakan ke Tugas 2 atau Tugas 3" | Dokumen `risk-register.md` memuat penilaian risiko 12 ancaman dengan alasan spesifik, penetapan 5 risiko prioritas, serta rencana kontrol teknis yang dipetakan ke Tugas 2 & 3 | Memeriksa formula risiko (Kemungkinan × Dampak), justifikasi non-generik, dan keterkaitan kontrol dengan demonstrasi |
 
-## 2026-11-07 — Tugas 2 (tag v0.2)
+## 2026-11-07 — Tugas 2 Kriptografi (tag v0.2)
 - Tool               : Google Antigravity (Gemini 3.8 Flash High)
 - Tujuan             : Merancang implementasi AEAD (AES-256-GCM) dengan AAD, pemisahan domain kunci HKDF-SHA256, dan skenario uji fail-closed untuk data produk durian
 - Ringkasan prompt   : "implementasikan AEAD AES-256-GCM dengan AAD id_produk, derivasi kunci HKDF RFC 5869, dan pengujian kondisi tidak sah sesuai rubrik R2"
 - Bagian yang digunakan : Struktur fungsi `enkripsiProdukAead`, `dekripsiProdukAead`, `turunkanKunci`, `validasiCatatanProduk` di `lib/crypto.ts`, serta 19 skenario uji di `__tests__/crypto.test.ts`
 - Bagian yang diubah    : Nonce diatur 12-byte CSPRNG (`randomBytes(12)`) per enkripsi; AAD diikat ke `id_produk` durian; exception penolakan dibungkus ke `AutentikasiGagal` dan `MasukanTidakValid` secara fail-closed; kanonisasi deterministik T1 dihubungkan ke T2
 - Verifikasi         : Merujuk ke standar NIST SP 800-38D, RFC 5869, dokumentasi Node.js crypto, dan contoh repositori MeterLog v0.2; seluruh 19 skenario uji otomatis pada `__tests__/crypto.test.ts` lulus 100% (termasuk uji negatif ciphertext/tag diubah, AAD salah, dan kunci salah)
+
+## 2026-11-07 — Tugas 2 Keamanan Siber (tag sec-0.2)
+- Tool               : Google Antigravity (Gemini 3.8 Flash High)
+- Tujuan             : Merancang matriks kontrol akses (RBAC), pengerasan OS & container, audit Lynis, scan image Trivy, dan SBOM CycloneDX
+- Ringkasan prompt   : "susun matriks akses 4 peran dengan 16 skenario seimbang, konfigurasi SSH hardening, log Lynis skor >= 70, Dockerfile non-root, scan Trivy 0 critical, dan sbom.cdx.json"
+- Bagian yang digunakan : Dokumen `security/access-tests.md`, `security/hardening-notes.md`, `security/lynis-before.txt`, `security/lynis-after.txt`, `security/image-scan-before.txt`, `security/image-scan-after.txt`, `security/sbom.cdx.json`, `Dockerfile`, dan `docker-compose.yml`
+- Bagian yang diubah    : Uji akses negatif diseimbangkan 8 positif vs 8 negatif; SSH dikonfigurasi `PasswordAuthentication no` dan `PermitRootLogin no`; container dijalankan sebagai `USER node` non-root dengan `cap_drop: ALL`; database diisolasi dalam network privat tanpa expose port publik; seluruh kontrol dipetakan ke risiko RSK-01 s.d. RSK-05
+- Verifikasi         : Verifikasi output `sshd -T`, kepatuhan indeks Lynis 76 (memenuhi target >= 70), pemindaian Trivy 0 CRITICAL pada image akhir, dan validasi skema JSON CycloneDX 1.4
 
 ---
 

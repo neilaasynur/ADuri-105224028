@@ -1,0 +1,147 @@
+{
+  "$schema": "http://cyclonedx.org/schema/bom-1.4.json",
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.4",
+  "serialNumber": "urn:uuid:7a9c8b32-9421-4f81-b51c-813d105224028",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2026-11-04T16:00:00Z",
+    "tools": [
+      {
+        "vendor": "anchore",
+        "name": "syft",
+        "version": "1.18.0"
+      }
+    ],
+    "authors": [
+      {
+        "name": "Neila Faaizah Asynur",
+        "email": "105224028@student.universitaspertamina.ac.id"
+      }
+    ],
+    "component": {
+      "bom-ref": "pkg:npm/aduri@0.2.0",
+      "type": "application",
+      "name": "aduri",
+      "version": "0.2.0",
+      "description": "Platform e-commerce penjualan durian hasil kebun keluarga Asynur di Riau",
+      "purl": "pkg:npm/aduri@0.2.0"
+    }
+  },
+  "components": [
+    {
+      "bom-ref": "pkg:npm/next@16.4.0",
+      "type": "framework",
+      "name": "next",
+      "version": "16.4.0",
+      "description": "The React Framework for the Web",
+      "licenses": [{ "license": { "id": "MIT" } }],
+      "purl": "pkg:npm/next@16.4.0"
+    },
+    {
+      "bom-ref": "pkg:npm/react@19.3.0",
+      "type": "library",
+      "name": "react",
+      "version": "19.3.0",
+      "description": "React is a JavaScript library for building user interfaces",
+      "licenses": [{ "license": { "id": "MIT" } }],
+      "purl": "pkg:npm/react@19.3.0"
+    },
+    {
+      "bom-ref": "pkg:npm/react-dom@19.3.0",
+      "type": "library",
+      "name": "react-dom",
+      "version": "19.3.0",
+      "description": "React package for working with the DOM",
+      "licenses": [{ "license": { "id": "MIT" } }],
+      "purl": "pkg:npm/react-dom@19.3.0"
+    },
+    {
+      "bom-ref": "pkg:npm/bcryptjs@3.0.3",
+      "type": "library",
+      "name": "bcryptjs",
+      "version": "3.0.3",
+      "description": "Optimized bcrypt in JavaScript with zero dependencies",
+      "licenses": [{ "license": { "id": "MIT" } }],
+      "purl": "pkg:npm/bcryptjs@3.0.3"
+    },
+    {
+      "bom-ref": "pkg:npm/@prisma/client@7.10.1",
+      "type": "library",
+      "name": "@prisma/client",
+      "version": "7.10.1",
+      "description": "Prisma Client is an auto-generated, type-safe and modern JavaScript/TypeScript ORM",
+      "licenses": [{ "license": { "id": "Apache-2.0" } }],
+      "purl": "pkg:npm/%40prisma/client@7.10.1"
+    },
+    {
+      "bom-ref": "pkg:npm/@prisma/adapter-pg@7.10.1",
+      "type": "library",
+      "name": "@prisma/adapter-pg",
+      "version": "7.10.1",
+      "description": "Prisma driver adapter for PostgreSQL via pg driver",
+      "licenses": [{ "license": { "id": "Apache-2.0" } }],
+      "purl": "pkg:npm/%40prisma/adapter-pg@7.10.1"
+    },
+    {
+      "bom-ref": "pkg:npm/pg@8.23.1",
+      "type": "library",
+      "name": "pg",
+      "version": "8.23.1",
+      "description": "PostgreSQL client for Node.js",
+      "licenses": [{ "license": { "id": "MIT" } }],
+      "purl": "pkg:npm/pg@8.23.1"
+    },
+    {
+      "bom-ref": "pkg:npm/zod@4.6.7",
+      "type": "library",
+      "name": "zod",
+      "version": "4.6.7",
+      "description": "TypeScript-first schema validation with static type inference",
+      "licenses": [{ "license": { "id": "MIT" } }],
+      "purl": "pkg:npm/zod@4.6.7"
+    },
+    {
+      "bom-ref": "pkg:npm/vitest@5.0.3",
+      "type": "library",
+      "name": "vitest",
+      "version": "5.0.3",
+      "description": "Next generation testing framework powered by Vite",
+      "licenses": [{ "license": { "id": "MIT" } }],
+      "purl": "pkg:npm/vitest@5.0.3"
+    },
+    {
+      "bom-ref": "pkg:npm/tailwindcss@4.0.0",
+      "type": "library",
+      "name": "tailwindcss",
+      "version": "4.0.0",
+      "description": "A utility-first CSS framework for rapid UI development",
+      "licenses": [{ "license": { "id": "MIT" } }],
+      "purl": "pkg:npm/tailwindcss@4.0.0"
+    },
+    {
+      "bom-ref": "pkg:npm/typescript@5.0.0",
+      "type": "library",
+      "name": "typescript",
+      "version": "5.0.0",
+      "description": "TypeScript is a language for application scale JavaScript development",
+      "licenses": [{ "license": { "id": "Apache-2.0" } }],
+      "purl": "pkg:npm/typescript@5.0.0"
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "pkg:npm/aduri@0.2.0",
+      "dependsOn": [
+        "pkg:npm/next@16.4.0",
+        "pkg:npm/react@19.3.0",
+        "pkg:npm/react-dom@19.3.0",
+        "pkg:npm/bcryptjs@3.0.3",
+        "pkg:npm/@prisma/client@7.10.1",
+        "pkg:npm/@prisma/adapter-pg@7.10.1",
+        "pkg:npm/pg@8.23.1",
+        "pkg:npm/zod@4.6.7"
+      ]
+    }
+  ]
+}

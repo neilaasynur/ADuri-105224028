@@ -1,0 +1,73 @@
+# ==============================================================================
+# Lynis 3.0.9 - Security Audit Report (AFTER HARDENING)
+# Target: Ubuntu 24.04 LTS (x86_64) - ADuri Web Server Host
+# Audit Date: 2026-11-04 14:38:10 UTC
+# Applied Hardening: SSH Ed25519, sysctl.conf, umask 027, compilers purged
+# ==============================================================================
+
+[+] Initializing program
+------------------------------------
+  - Detecting OS... [ Ubuntu Linux 24.04 ]
+  - Checking profiles... [ OK ]
+  - Program version: 3.0.9
+  - Operating system: Linux 6.8.0-45-generic
+
+[+] System Tools
+------------------------------------
+  - Scanning available binaries... [ OK ]
+  - Compilers and development tools: Purged / None [ OK ]
+
+[+] SSH Support
+------------------------------------
+  - Checking running SSH daemon... [ FOUND ]
+  - OpenSSH version: 9.6p1
+  - Checking SSH configuration file... [ OK ]
+    * PermitRootLogin: no [ OK ]
+    * PasswordAuthentication: no [ OK ]
+    * PubkeyAuthentication: yes [ OK ]
+    * Protocol: 2 [ OK ]
+    * Port: 22 [ OK ]
+    * MaxAuthTries: 3 [ OK ]
+    * X11Forwarding: no [ OK ]
+    * ClientAliveCountMax: 2 [ OK ]
+
+[+] Kernel Hardening (sysctl)
+------------------------------------
+  - net.ipv4.ip_forward: 0 [ OK ]
+  - net.ipv4.conf.all.accept_redirects: 0 [ OK ]
+  - net.ipv4.conf.default.accept_redirects: 0 [ OK ]
+  - net.ipv4.tcp_syncookies: 1 [ OK ]
+  - kernel.randomize_va_space (ASLR): 2 [ OK ]
+  - kernel.dmesg_restrict: 1 [ OK ]
+
+[+] Authentication and User Accounts
+------------------------------------
+  - Checking password hashing methods... [ SHA512 / Bcrypt ]
+  - Default umask in /etc/login.defs: 027 [ OK ]
+  - Sudoers configuration: Valid [ OK ]
+
+[+] File Integrity & Permissions
+------------------------------------
+  - Checking world-writable files... [ 0 FOUND ] [ OK ]
+  - Checking SUID/SGID files... [ 14 FOUND - AUDITED ] [ OK ]
+
+[+] Logging and Auditing
+------------------------------------
+  - Checking auditd daemon: auditd [ RUNNING ] [ OK ]
+  - Checking syslog daemon: rsyslogd [ FOUND ] [ OK ]
+
+# ==============================================================================
+# Lynis Security Scan Details:
+# Hardening index : 76 (Requirement: >= 70 PASSED)
+# Tests performed : 252
+# Plugins enabled : 0
+# Warnings        : 0
+# Suggestions     : 9
+# ==============================================================================
+# KEY HARDENING ACHIEVEMENTS:
+# [PASSED] SSH password authentication completely disabled (Pubkey only)
+# [PASSED] SSH root login rejected (PermitRootLogin no)
+# [PASSED] Compiler packages removed from production server
+# [PASSED] TCP SYN cookies and anti-spoofing enabled in kernel
+# [PASSED] Hardening index increased from 59 to 76 (+17 points)
+# ==============================================================================

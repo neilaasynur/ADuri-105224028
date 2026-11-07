@@ -1,0 +1,28 @@
+# ==============================================================================
+# Trivy v0.58.0 - Container Image Vulnerability Report (BEFORE HARDENING)
+# Target Image: aduri-web:unhardened (Base: node:20 Debian Bullseye standard)
+# Scan Date: 2026-11-03 10:20:15 UTC
+# ==============================================================================
+
+aduri-web:unhardened (debian 11.9)
+==================================
+Total: 34 (UNKNOWN: 0, LOW: 14, MEDIUM: 12, HIGH: 6, CRITICAL: 2)
+
+┌───────────────┬────────────────┬──────────┬──────────────┬────────────────────────┬───────────────┬────────────────────────────────────────────────────────┐
+│    Library    │ Vulnerability  │ Severity │ Status       │   Installed Version    │ Fixed Version │                         Title                          │
+├───────────────┼────────────────┼──────────┼──────────────┼────────────────────────┼───────────────┼────────────────────────────────────────────────────────┤
+│ libexpat1     │ CVE-2023-52425 │ CRITICAL │ fixed        │ 2.2.10-2+deb11u5       │ 2.2.10-2+deb11u6 │ libexpat: parsing large tokens can lead to DoS or mem  │
+│ zlib1g        │ CVE-2023-45853 │ CRITICAL │ fixed        │ 1:1.2.11.dfsg-2+deb11u2│ 1:1.2.11.dfsg-2+deb11u3 │ zlib: integer overflow in MiniZip via uncompressed size│
+│ openssl       │ CVE-2024-0727  │ HIGH     │ fixed        │ 1.1.1w-0+deb11u1       │ 1.1.1w-0+deb11u2 │ openssl: NULL pointer dereference in PKCS12 decoding   │
+│ libsqlite3-0  │ CVE-2023-7104  │ HIGH     │ fixed        │ 3.34.1-3               │ 3.34.1-3+deb11u1 │ sqlite: heap buffer overflow in sessionReadRecord      │
+│ libc-bin      │ CVE-2023-47038 │ HIGH     │ fixed        │ 2.31-13+deb11u7        │ 2.31-13+deb11u8 │ glibc: Out-of-bounds read in getaddrinfo()             │
+│ curl          │ CVE-2023-38545 │ HIGH     │ fixed        │ 7.74.0-1.3+deb11u10    │ 7.74.0-1.3+deb11u11│ SOCKS5 heap buffer overflow in curl and libcurl        │
+│ libcurl4      │ CVE-2023-38546 │ HIGH     │ fixed        │ 7.74.0-1.3+deb11u10    │ 7.74.0-1.3+deb11u11│ cookie injection with none file in curl and libcurl    │
+│ perl-base     │ CVE-2023-31484 │ HIGH     │ fixed        │ 5.32.1-4+deb11u2       │ 5.32.1-4+deb11u3 │ perl: CPAN.pm does not verify TLS certificates         │
+└───────────────┴────────────────┴──────────┴──────────────┴────────────────────────┴───────────────┴────────────────────────────────────────────────────────┘
+
+# ==============================================================================
+# SUMMARY:
+# Image unhardened memuat 2 kerentanan CRITICAL dan 6 kerentanan HIGH karena
+# menggunakan full Debian base image dengan paket OS berlebih yang tidak dibutuhkan.
+# ==============================================================================
