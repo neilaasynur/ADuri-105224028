@@ -107,7 +107,48 @@ projek-web/
 
 ---
 
-## 🚀 Petunjuk Menjalankan Proyek
+## 📦 Bagian 4: Milestone 2 — Integrasi Server & Database Produk Web (PAW)
+
+Pada **Milestone 2 (v0.2 — Pekan 6)**, aplikasi ADuri mengintegrasikan logika server (*Server Actions*) dan basis data persisten **PostgreSQL** menggunakan **Prisma ORM 7**, menggantikan data tiruan (*mock data*) dari Milestone 1 (v0.1).
+
+### 1. Perkembangan Fitur dari v0.1 ke v0.2
+* **Penyimpanan Data Persisten**: Seluruh katalog durian dan ulasan pelanggan tersimpan secara permanen di basis data PostgreSQL. Data tetap utuh dan sinkron setelah halaman dimuat ulang.
+* **Server-Side Mutation**: Pengelolaan data menggunakan React Server Actions (`"use server"`) di App Router Next.js, meniadakan ketergantungan pada client-side state yang rentan manipulasi.
+* **Validasi Masukan Server (Zod)**: Setiap input formulir divalidasi secara ketat di sisi server sebelum diproses ke basis data, menghasilkan pesan kesalahan spesifik per *field*.
+
+### 2. Pemodelan Data Relasional (PostgreSQL & Prisma ORM 7)
+Basis data ADuri memodelkan hubungan relasional satu-ke-banyak (1:N) antara dua entitas utama:
+* **Entitas `Item` (Induk)**: Menyimpan varietas durian (`id`, `judul` unik, `kategori`, `deskripsi`, `tersedia`, `gambar`, `dibuatPada`).
+* **Entitas `Ulasan` (Anak)**: Menyimpan testimoni pembeli (`id`, `nama`, `nilai` 1–5, `komentar`, `dibuatPada`, `itemId`).
+* **Constraint & Relasi Data**:
+  * Constraint Unik Sederhana: `Item.judul` unik untuk mencegah duplikasi nama varietas durian.
+  * Constraint Unik Komposit: `@@unique([itemId, nama])` memastikan satu pembeli hanya memberi ulasan satu kali per varietas durian.
+  * Aturan Integritas Referential: **`onDelete: Restrict`** melindungi ulasan pembeli (*social proof*) agar tidak terhapus tanpa sengaja akibat *cascade deletion*. Penghapusan item yang memiliki ulasan wajib melalui transaksi sadar (`prisma.$transaction`).
+
+### 3. Implementasi Operasi CRUD Lengkap
+* **Create**: Penambahan varietas durian baru via modal katalog dan penambahan ulasan pembeli pada halaman detail durian.
+* **Read**: Pengambilan daftar varietas durian real-time dari PostgreSQL dan penghitungan agregat rating rata-rata ulasan.
+* **Update**: Pembaruan judul, kategori, dan deskripsi durian melalui Server Action `ubahItem()`.
+* **Delete**: Penghapusan varietas durian dengan verifikasi relasi referensial (penolakan jika memiliki ulasan) dan penghapusan melalui transaksi atomik.
+
+### 4. Ringkasan 10 Skenario Pengujian CRUD & Relasi
+Pengujian otomatis menggunakan Vitest pada `__tests__/crud-modul-06.test.ts` (11 pengujian, **100% Lulus**):
+1. [CRUD-01] Tambah item durian sah $\to$ tersimpan di database dan tampil di katalog.
+2. [VALIDASI-01] Tambah item dengan judul kembar $\to$ ditolak constraint unik `P2002`.
+3. [VALIDASI-02] Tambah item dengan field kosong $\to$ ditolak validasi Zod dengan pesan galat per field.
+4. [CRUD-02] Ubah deskripsi item $\to$ data terupdate di PostgreSQL.
+5. [VALIDASI-03] Ubah item yang sudah dihapus $\to$ ditolak galat rekod tidak ditemukan `P2025`.
+6. [RELASI-01] Pembuktian RESTRICT: Hapus item yang memiliki ulasan tanpa transaksi $\to$ ditolak foreign key `P2003`.
+7. [CRUD-03] Tambah ulasan pembeli sah $\to$ rating dan komentar terhubung ke item.
+8. [RELASI-02] Transaksi atomik: Rollback transaksi saat perintah kedua gagal $\to$ ulasan tetap utuh.
+9. [CRUD-04] Hapus item beserta seluruh ulasannya via `prisma.$transaction` $\to$ berhasil bersih.
+10. [VALIDASI-04] Ulasan ganda dengan nama sama pada item sama $\to$ ditolak komposit unik `P2002`.
+
+Laporan teknis lengkap beserta diagram ERD dan tangkapan layar antarmuka tersedia di **[`docs/praktikum/modul-06.md`](docs/praktikum/modul-06.md)**.
+
+---
+
+## 🚀 Petunjuk Menjalankan Proyek & Database
 
 ### Prasyarat
 - Node.js 18+
@@ -142,14 +183,23 @@ npm test
 
 ---
 
-## 🛡️ Bagian 4: Arsitektur Keamanan & Pemodelan Ancaman (Penanda `sec-0.1`)
+## 🛡️ Bagian 4: Keamanan Siber (Penanda `sec-0.1` & `sec-0.2`)
 
-Dokumentasi analisis keamanan komprehensif produk ADuri disajikan dalam dokumen-dokumen terpisah berikut:
-1. **[Inventaris Aset Produk (`asset-inventory.md`)](asset-inventory.md)**: Klasifikasi tingkat sensitivitas Confidentiality, Integrity, dan Availability (CIA) untuk seluruh aset data, kredensial, perangkat lunak, dan layanan eksternal.
-2. **[Diagram Aliran Data & Trust Boundary (`dfd.md`)](dfd.md)**: Pemodelan DFD Level 1 dengan ID elemen lengkap (E1–E4, P1–P5, DS1–DS5, DF01–DF16), 3 batas kepercayaan (*Trust Boundaries*), dan penandaan aset terproteksi kriptografi.
-3. **[Model Ancaman STRIDE (`threat-model.md`)](threat-model.md)**: 12 skenario ancaman spesifik non-generik berbasis alur transaksi durian dan booking kunjungan kebun.
-4. **[Daftar Risiko & Rencana Kontrol (`risk-register.md`)](risk-register.md)**: Matriks kemungkinan–dampak, penetapan 5 risiko prioritas utama, dan rencana kontrol teknis yang dipetakan ke **Tugas 2** dan **Tugas 3**.
-5. **[Catatan Penggunaan AI (`AI_LOG.md`)](AI_LOG.md)**: Dokumentasi transparan penggunaan AI generatif dalam perancangan produk.
+Seluruh dokumen dan artefak Keamanan Siber (KKS) dikonsolidasikan dalam folder [`security/`](security/):
+
+### A. Tugas 1 (Penanda `sec-0.1`):
+1. **[`security/asset-inventory.md`](security/asset-inventory.md)**: Klasifikasi tingkat sensitivitas CIA untuk seluruh aset data, kredensial, perangkat lunak, dan host.
+2. **[`security/dfd.md`](security/dfd.md)**: Pemodelan DFD Level 1 dengan ID elemen lengkap, 3 batas kepercayaan (*Trust Boundaries*), dan penandaan aset terproteksi kriptografi.
+3. **[`security/threat-model.md`](security/threat-model.md)**: 12 skenario ancaman spesifik non-generik berbasis alur transaksi durian dan booking kunjungan kebun.
+4. **[`security/risk-register.md`](security/risk-register.md)**: Matriks kemungkinan–dampak, penetapan 5 risiko prioritas utama, dan rencana kontrol teknis yang dipetakan ke Tugas 2 dan Tugas 3.
+
+### B. Tugas 2 (Penanda `sec-0.2`):
+1. **[`security/access-tests.md`](security/access-tests.md)**: Matriks kontrol akses per peran (RBAC 4 peran: Tamu, Pelanggan, Staf, Admin) dengan **16 skenario uji seimbang (8 Positif vs 8 Negatif)** serta pembuktian penyimpanan kata sandi menggunakan fungsi hash lambat (Bcrypt cost factor 12).
+2. **[`security/hardening-notes.md`](security/hardening-notes.md)**: Catatan teknis pengerasan SSH (verifikasi `sudo sshd -T` menghasilkan `passwordauthentication no` dan `permitrootlogin no`), kernel Linux `sysctl`, dan isolasi container.
+3. **[`security/lynis-before.txt`](security/lynis-before.txt) & [`security/lynis-after.txt`](security/lynis-after.txt)**: Log audit kepatuhan Lynis 3.0.9 dengan peningkatan skor indeks pengerasan dari **59** menjadi **76** (memenuhi syarat $\ge 70$).
+4. **[`security/image-scan-before.txt`](security/image-scan-before.txt) & [`security/image-scan-after.txt`](security/image-scan-after.txt)**: Hasil pemindaian kerentanan image container Trivy sebelum vs sesudah pengerasan (**0 kerentanan CRITICAL** pada image akhir).
+5. **[`security/sbom.cdx.json`](security/sbom.cdx.json)**: Berkas *Software Bill of Materials* standar industri format CycloneDX 1.4 JSON.
+6. **[`Dockerfile`](Dockerfile) & [`docker-compose.yml`](docker-compose.yml)**: Konfigurasi container multi-stage non-root (`USER node`, UID 1000), kapabilitas kernel dibatasi (`cap_drop: ALL`, `no-new-privileges: true`), dan port database `5432` terisolasi penuh dari akses publik.
 
 ---
 

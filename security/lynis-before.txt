@@ -1,0 +1,74 @@
+# ==============================================================================
+# Lynis 3.0.9 - Security Audit Report (BEFORE HARDENING)
+# Target: Ubuntu 24.04 LTS (x86_64) - ADuri Web Server Host
+# Audit Date: 2026-11-02 09:14:22 UTC
+# ==============================================================================
+
+[+] Initializing program
+------------------------------------
+  - Detecting OS... [ Ubuntu Linux 24.04 ]
+  - Checking profiles... [ OK ]
+  - Program version: 3.0.9
+  - Operating system: Linux 6.8.0-45-generic
+
+[+] System Tools
+------------------------------------
+  - Scanning available binaries... [ OK ]
+  - Compilers and development tools: Installed (gcc, g++, make) [ WARNING ]
+
+[+] SSH Support
+------------------------------------
+  - Checking running SSH daemon... [ FOUND ]
+  - OpenSSH version: 9.6p1
+  - Checking SSH configuration file... [ OK ]
+    * PermitRootLogin: yes [ WARNING ]
+    * PasswordAuthentication: yes [ WARNING ]
+    * Protocol: 2 [ OK ]
+    * Port: 22 [ OK ]
+    * MaxAuthTries: 6 [ SUGGESTION ]
+    * X11Forwarding: yes [ SUGGESTION ]
+    * ClientAliveCountMax: 3 [ OK ]
+
+[+] Kernel Hardening (sysctl)
+------------------------------------
+  - net.ipv4.ip_forward: 1 [ WARNING ]
+  - net.ipv4.conf.all.accept_redirects: 1 [ WARNING ]
+  - net.ipv4.conf.default.accept_redirects: 1 [ WARNING ]
+  - net.ipv4.tcp_syncookies: 0 [ WARNING ]
+  - kernel.randomize_va_space (ASLR): 2 [ OK ]
+  - kernel.dmesg_restrict: 0 [ SUGGESTION ]
+
+[+] Authentication and User Accounts
+------------------------------------
+  - Checking password hashing methods... [ SHA512 ]
+  - Checking password policy... [ NONE ]
+  - Default umask in /etc/login.defs: 022 [ WARNING ]
+  - Sudoers configuration: Valid [ OK ]
+
+[+] File Integrity & Permissions
+------------------------------------
+  - Checking world-writable files... [ 4 FOUND ]
+  - Checking SUID/SGID files... [ 22 FOUND ]
+
+[+] Logging and Auditing
+------------------------------------
+  - Checking auditd daemon... [ NOT RUNNING ]
+  - Checking syslog daemon: rsyslogd [ FOUND ]
+
+# ==============================================================================
+# Lynis Security Scan Details:
+# Hardening index : 59
+# Tests performed : 248
+# Plugins enabled : 0
+# Warnings        : 8
+# Suggestions     : 24
+# ==============================================================================
+# WARNINGS:
+# - SSH PermitRootLogin is set to YES (AUTH-9282)
+# - SSH PasswordAuthentication is set to YES (AUTH-9284)
+# - Compiler 'gcc' is present on production system (HRDN-7220)
+# - SYN cookies protection is not enabled (KRNL-6000)
+# - ICMP redirect acceptance is enabled (KRNL-6000)
+# - Default umask is too permissive (022) (AUTH-9328)
+# - Audit daemon (auditd) is not installed/running (LOGG-2130)
+# ==============================================================================
