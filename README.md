@@ -150,3 +150,39 @@ Dokumentasi analisis keamanan komprehensif produk ADuri disajikan dalam dokumen-
 3. **[Model Ancaman STRIDE (`threat-model.md`)](threat-model.md)**: 12 skenario ancaman spesifik non-generik berbasis alur transaksi durian dan booking kunjungan kebun.
 4. **[Daftar Risiko & Rencana Kontrol (`risk-register.md`)](risk-register.md)**: Matriks kemungkinan–dampak, penetapan 5 risiko prioritas utama, dan rencana kontrol teknis yang dipetakan ke **Tugas 2** dan **Tugas 3**.
 5. **[Catatan Penggunaan AI (`AI_LOG.md`)](AI_LOG.md)**: Dokumentasi transparan penggunaan AI generatif dalam perancangan produk.
+
+---
+
+## 🎯 Bagian 5: Milestone v0.2 — Tugas 2 (Kriptografi Terintegrasi)
+
+Pada Milestone `v0.2` (Pekan 6), ADuri menerapkan perlindungan kerahasiaan dan integritas data produk/katalog menggunakan **Authenticated Encryption with Associated Data (AEAD: AES-256-GCM)**, pemisahan domain kunci **HKDF-SHA256 (RFC 5869)**, validasi masukan *allowlist*, dan penanganan kegagalan *fail-closed*.
+
+### 1. Parameter Kriptografi Resmi (Terdokumentasi)
+- **Panjang Kunci:** 256-bit (32 byte), dibangkitkan via CSPRNG (`crypto.randomBytes(32)`).
+- **Nonce / IV:** 96-bit (12 byte) unik dibangkitkan per operasi enkripsi (`crypto.randomBytes(12)`).
+- **AAD (Additional Authenticated Data):** Mengikat `id_produk` durian (misal: `DRN-MKG-001`) ke ciphertext tanpa dienkripsi.
+- **Authentication Tag:** 128-bit (16 byte) dari GMAC untuk verifikasi keaslian dan keutuhan data.
+- **Penyimpanan Kunci:** Disimpan di luar repositori (`.env.local` yang masuk `.gitignore`).
+
+### 2. Sambungan Antar-Komponen (T1 $\to$ T2)
+Sesuai arahan evaluasi, komponen T2 tidak berdiri sendiri melainkan terintegrasi dengan komponen T1:
+- **Kanonisasi Deterministik (T1 $\to$ T2):** Plaintext data produk divalidasi dan diurutkan secara kanonis menggunakan `kanonisasiJson()` (T1) sebelum dienkripsi dengan `enkripsiProdukAead()` (T2).
+- **Pemisahan Kunci (HKDF-SHA256):** Master Key diturunkan menjadi sub-kunci AEAD dan HMAC independen.
+
+### 3. Perintah Uji dari Klon Bersih (*Clean Clone*)
+Untuk memeriksa dan menjalankan seluruh pengujian dari klon bersih:
+```bash
+git clone <url-repository> uji && cd uji
+git checkout v0.2
+npm install
+npm test
+```
+Atau untuk menguji modul kriptografi saja:
+```bash
+npx vitest run __tests__/crypto.test.ts
+```
+
+### 4. Dokumen Kelengkapan Tugas 2
+- **[`KEPUTUSAN.md`](KEPUTUSAN.md)**: Analisis kebutuhan $\to$ mekanisme $\to$ alasan & alternatif, parameter resmi, analisis bahaya *nonce reuse*, dan prinsip *fail-closed*.
+- **[`EVALUASI.md`](EVALUASI.md)**: Rincian 19 skenario uji (positif, negatif, batas), temuan keamanan, perbaikan, dan evaluasi keterbatasan menuju Tugas 3.
+- **[`AI_LOG.md`](AI_LOG.md)**: Catatan transparansi penggunaan AI generatif dengan format baku rubrik R2.
