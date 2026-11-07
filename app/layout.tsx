@@ -23,13 +23,16 @@ export const metadata: Metadata = {
     "Platform penjualan durian kebun keluarga Asynur di Riau. Pilihan varietas durian berkualitas manis legit, pengiriman segar, dan kunjungan ambil sendiri di kebun.",
 };
 
-export default async function RootLayout({
+async function NavbarSesi() {
+  const sesi = await bacaSesi();
+  return <Navbar sesi={sesi ? { email: sesi.email } : null} />;
+}
+
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const sesi = await bacaSesi();
-
   return (
     <html
       lang="id"
@@ -45,7 +48,9 @@ export default async function RootLayout({
         </a>
 
         {/* 1. Header & Navigasi Utama */}
-        <Navbar sesi={sesi ? { email: sesi.email } : null} />
+        <Suspense fallback={<Navbar sesi={null} />}>
+          <NavbarSesi />
+        </Suspense>
 
         {/* 2. Kontainer Konten Halaman Aktif */}
         <main id="main-content" className="flex-1">

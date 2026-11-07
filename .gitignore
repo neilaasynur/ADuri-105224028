@@ -44,3 +44,10 @@ next-env.d.ts
 # prisma generated client
 /generated/prisma
 /lib/generated/prisma
+
+# editor & ai agent tooling
+.agents/
+.claude/
+.windsurf/
+skills-lock.json
+
